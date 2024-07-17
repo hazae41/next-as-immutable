@@ -1,0 +1,62 @@
+{
+  "type": "module",
+  "name": "@hazae41/next-as-immutable",
+  "version": "0.0.0",
+  "description": "Create immutable Next.js webapps",
+  "homepage": "https://github.com/hazae41/next-as-immutable",
+  "repository": "github:hazae41/next-as-immutable",
+  "author": "hazae41",
+  "license": "MIT",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "./dist/esm",
+    "./dist/cjs",
+    "./dist/types"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "test": "node ./dist/test/index.test.mjs",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@hazae41/phobos": "^1.0.10",
+    "@hazae41/rimraf": "^1.0.1",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.14.10",
+    "rollup": "^4.18.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-node-externals": "^7.1.2",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    }
+  },
+  "keywords": [
+    "next",
+    "next.js",
+    "react",
+    "react.js",
+    "immutable",
+    "offline",
+    "cached",
+    "service-worker",
+    "serviceworker",
+    "typescript",
+    "esmodules",
+    "tested",
+    "unit-tested"
+  ],
+  "dependencies": {
+    "@hazae41/option": "^1.0.27",
+    "next": "^14.2.5",
+    "webpack": "^5.93.0"
+  }
+}
