@@ -4,6 +4,7 @@ import fs from "fs"
 import { walkSync } from "libs/fs/index.js"
 import { NextConfig } from "next"
 import Log from "next/dist/build/output/log.js"
+import { WebpackConfigContext } from "next/dist/server/config-shared.js"
 import path from "path"
 import { Configuration, Stats, webpack } from "webpack"
 
@@ -110,7 +111,7 @@ export async function compileAndVersionAsMacro(wpconfig: Configuration) {
 }
 
 export interface ImmutableConfig {
-  compiles(): Generator<Promise<void>>
+  compiles(wpconfig: Configuration): Generator<Promise<void>>
 }
 
 export function withImmutable(config: NextConfig & ImmutableConfig) {
@@ -118,7 +119,7 @@ export function withImmutable(config: NextConfig & ImmutableConfig) {
 
   return {
     ...config,
-    webpack(wpconfig, wpoptions) {
+    webpack(wpconfig: Configuration, wpoptions: WebpackConfigContext) {
       if (wpoptions.isServer)
         return wpconfig
 
@@ -131,7 +132,7 @@ export function withImmutable(config: NextConfig & ImmutableConfig) {
           fs.rmSync(file, { force: true })
       }
 
-      promise = Promise.all(config.compiles()).then(() => { })
+      promise = Promise.all(config.compiles(wpconfig)).then(() => { })
 
       return wpconfig
     },
