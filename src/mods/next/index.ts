@@ -114,11 +114,14 @@ export interface ImmutableConfig {
   compiles(wpconfig: Configuration): Generator<Promise<void>>
 }
 
-export function withImmutable(config: NextConfig & ImmutableConfig) {
-  let promise: Promise<void>
+export function withImmutable(config: NextConfig & ImmutableConfig): NextConfig {
+  const { compiles, ...defaults } = config
+
+  const memory = { promise: Promise.resolve() }
 
   return {
-    ...config,
+    ...defaults,
+
     webpack(wpconfig: Configuration, wpoptions: WebpackConfigContext) {
       if (wpoptions.isServer)
         return wpconfig
@@ -132,14 +135,16 @@ export function withImmutable(config: NextConfig & ImmutableConfig) {
           fs.rmSync(file, { force: true })
       }
 
-      promise = Promise.all(config.compiles(wpconfig)).then(() => { })
+      memory.promise = Promise.all(compiles(wpconfig)).then(() => { })
 
       return wpconfig
     },
+
     exportPathMap: async (map) => {
-      await promise
+      await memory.promise
       return map
     },
+
     async headers() {
       if (process.env.NODE_ENV !== "production")
         return []
@@ -156,5 +161,5 @@ export function withImmutable(config: NextConfig & ImmutableConfig) {
         },
       ]
     },
-  } satisfies NextConfig
+  }
 }
