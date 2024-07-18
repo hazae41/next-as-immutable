@@ -55,7 +55,9 @@
     "unit-tested"
   ],
   "dependencies": {
-    "@hazae41/option": "^1.0.27",
+    "@hazae41/option": "^1.0.27"
+  },
+  "peerDependencies": {
     "next": "^14.2.5",
     "webpack": "^5.93.0"
   }
