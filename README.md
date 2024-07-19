@@ -1,6 +1,6 @@
 # Next.js as Immutable
 
-Create immutable Next.js webapps that are secure and resilient.
+Create [immutable](https://github.com/hazae41/immutable) Next.js webapps that are secure and resilient.
 
 ```bash
 npm i -D @hazae41/next-as-immutable
