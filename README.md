@@ -8,11 +8,13 @@ npm i -D @hazae41/next-as-immutable
 
 [**Node Package 📦**](https://www.npmjs.com/package/@hazae41/next-as-immutable)
 
-## Recommendations
+## Examples
 
-Your app SHOULD be client-side and exportable with hash-based routing
+Here is a list of immutable Next.js webapps
 
-## Usage
+- https://dstorage.hazae41.me/v0 / https://github.com/hazae41/dstorage
+
+## Setup
 
 Install `@hazae41/immutable`
 
