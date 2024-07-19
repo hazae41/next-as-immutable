@@ -125,6 +125,10 @@ export function withImmutable(config: NextConfig & ImmutableConfig): NextConfig 
   return {
     ...defaults,
 
+    generateBuildId() {
+      return "immutable"
+    },
+
     webpack(wpconfig: Configuration, wpoptions: WebpackConfigContext) {
       if (wpoptions.isServer)
         return wpconfig
