@@ -280,6 +280,8 @@ await Immutable.register("/service_worker.latest.js")
 You can use the returned async function to update your app
 
 ```tsx
+navigator.serviceWorker.addEventListener("controllerchange", () => location.reload())
+
 const update = await Immutable.register("/service_worker.latest.js")
 
 if (update != null) {
@@ -289,10 +291,6 @@ if (update != null) {
   button.onclick = async () => await update()
   return
 }
-
-/**
- * No update available
- */
 
 await navigator.serviceWorker.ready
 ```
