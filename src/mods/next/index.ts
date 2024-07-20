@@ -125,6 +125,8 @@ export function withImmutable(config: NextConfig & ImmutableConfig): NextConfig 
   return {
     ...defaults,
 
+    output: "export",
+
     generateBuildId() {
       return "immutable"
     },
