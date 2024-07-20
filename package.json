@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@hazae41/next-as-immutable",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Create immutable Next.js webapps",
   "homepage": "https://github.com/hazae41/next-as-immutable",
   "repository": "github:hazae41/next-as-immutable",
