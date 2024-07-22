@@ -233,32 +233,35 @@ And create a `.html` file with the original page name and same folder structure 
 ```html
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Loading...</title>
-    <script type="module">
-        const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
-        const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
+  <title>Loading...</title>
+  <script type="module">
+    const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
+    const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
 
-        if (!latestScriptRes.ok)
-          throw new Error(`Failed to fetch latest service-worker`)
+    if (!latestScriptRes.ok)
+      throw new Error(`Failed to fetch latest service-worker`)
 
-        const { pathname } = latestScriptUrl 
+    const { pathname } = latestScriptUrl
 
-        const filename = pathname.split("/").at(-1)
-        const basename = filename.split(".").at(0)
+    const filename = pathname.split("/").at(-1)
+    const basename = filename.split(".").at(0)
 
-        const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
-        const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
-        const latestVersion = latestHashRawHex.slice(0, 6)
+    const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
+    const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
+    const latestVersion = latestHashRawHex.slice(0, 6)
 
-        const latestVersionScriptPath = `${basename}.${latestVersion}.js`
-        const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+    const latestVersionScriptPath = `${basename}.${latestVersion}.js`
+    const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
 
-        await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
-        await navigator.serviceWorker.ready
+    await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
+    await navigator.serviceWorker.ready
 
-        location.reload()
-    </script>
+    location.reload()
+  </script>
+</head>
+
 </html>
 ```
 
