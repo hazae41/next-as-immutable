@@ -16,20 +16,22 @@ Here is a list of immutable Next.js webapps
 
 ## Setup
 
-Install `@hazae41/immutable`
+Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
 
 ```bash
 npm i @hazae41/immutable
 ```
 
-Install `@hazae41/next-as-immutable` and `@hazae41/saumon` as `devDependencies`
-
-```bash
-npm i -D @hazae41/next-as-immutable
-```
+Install [`@hazae41/saumon`](https://github.com/hazae41/saumon) as `devDependencies`
 
 ```bash
 npm i -D @hazae41/saumon
+```
+
+Install `@hazae41/next-as-immutable` as `devDependencies`
+
+```bash
+npm i -D @hazae41/next-as-immutable
 ```
 
 Modify your `package.json` to add `saumon build -r ./out` in order to postprocess each production build
@@ -260,7 +262,7 @@ And create a `.html` file with the original page name and same folder structure 
 </html>
 ```
 
-I recommend using a virtual path (e.g. hash-based routing) to avoid creating a bootpage for each page
+I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/hazae41/chemin)) to avoid creating a bootpage for each page
 
 e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
 
