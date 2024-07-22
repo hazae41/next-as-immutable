@@ -34,6 +34,12 @@ Install `@hazae41/next-as-immutable` as `devDependencies`
 npm i -D @hazae41/next-as-immutable
 ```
 
+Install [Bun](https://bun.sh/) (only required by `@hazae41/saumon`)
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
 Modify your `package.json` to add `saumon build -r ./out` in order to postprocess each production build
 
 ```json
@@ -43,12 +49,6 @@ Modify your `package.json` to add `saumon build -r ./out` in order to postproces
   "start": "npx serve@latest out",
   "lint": "next lint"
 },
-```
-
-Install [Bun](https://bun.sh/) (only required by Saumon)
-
-```bash
-curl -fsSL https://bun.sh/install | bash
 ```
 
 Modify your `next.config.js` to build and hash your service-worker
