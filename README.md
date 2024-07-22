@@ -32,6 +32,23 @@ npm i -D @hazae41/next-as-immutable
 npm i -D @hazae41/saumon
 ```
 
+Modify your `package.json` to add `saumon build -r ./out` in order to postprocess each production build
+
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "next build && saumon build -r ./out",
+  "start": "npx serve@latest out",
+  "lint": "next lint"
+},
+```
+
+Install [Bun](https://bun.sh/) (only required by Saumon)
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
 Modify your `next.config.js` to build and hash your service-worker
 
 ```js
@@ -99,11 +116,6 @@ async function compileServiceWorker(wpconfig) {
 }
 
 module.exports = withImmutable({
-  /**
-   * Recommended
-   */
-  output: "export",
-
   compiles: function* (wpconfig) {
     for (const absolute of walkSync("./public")) {
       const filename = path.basename(absolute)
@@ -121,17 +133,6 @@ module.exports = withImmutable({
   }
 })
 
-```
-
-Modify your `package.json` to add `saumon build -r ./out` in order to postprocess each production build
-
-```json
-"scripts": {
-  "dev": "next dev",
-  "build": "next build && saumon build -r ./out",
-  "start": "npx serve@latest out",
-  "lint": "next lint"
-},
 ```
 
 Add this glue code to your service-worker
