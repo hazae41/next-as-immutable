@@ -30,7 +30,7 @@ export async function compile(wpconfig: Configuration) {
   const dirname = path.dirname(wpconfig.output.filename)
   const basename = path.basename(wpconfig.output.filename, ".js")
 
-  fs.mkdirSync(`./public/${dirname}/${basename}.js`, { recursive: true })
+  fs.mkdirSync(`./public/${dirname}`, { recursive: true })
 
   fs.copyFileSync(`./.webpack/${dirname}/${basename}.js`, `./public/${dirname}/${basename}.js`)
 }
