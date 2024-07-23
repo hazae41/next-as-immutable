@@ -142,6 +142,15 @@ Add this glue code to your service-worker
 ```tsx
 import { Immutable } from "@hazae41/immutable"
 
+declare const self: ServiceWorkerGlobalScope
+
+self.addEventListener("install", (event) => {
+  /**
+   * Auto-activate as the update was already accepted
+   */
+  self.skipWaiting()
+})
+
 /**
  * Declare global macro
  */
