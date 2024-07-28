@@ -285,7 +285,7 @@ I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/ha
 
 e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
 
-Or you can simply run a script to copy all `<filename>.html` into `_<filename>.html` and copy a `start.html` (your bootpage) into all `<filename>.html`
+Or you can simply run a script to copy all `./out/<filename>.html` into `./out/_<filename>.html` and copy a `./out/start.html` (your bootpage) into all `./out/<filename>.html`
 
 Use `Immutable.register()` to register your service-worker in your code
 
@@ -582,7 +582,7 @@ I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/ha
 
 e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
 
-Or you can simply run a script to copy all `<filename>.html` into `_<filename>.html` and copy a `start.html` (your bootpage) into all `<filename>.html`
+Or you can simply run a script to copy all `./out/<filename>.html` into `./out/_<filename>.html` and copy a `./out/start.html` (your bootpage) into all `./out/<filename>.html`
 
 Use `Immutable.register()` to register your service-worker in your code
 
