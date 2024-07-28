@@ -14,7 +14,7 @@ Here is a list of immutable Next.js webapps
 
 - https://dstorage.hazae41.me/v0 / https://github.com/hazae41/dstorage
 
-## Setup
+## Setup with Saumon macros (recommended)
 
 Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
 
@@ -220,6 +220,238 @@ if (process.env.NODE_ENV === "production") {
   }, { space: 0 })`)
 
   const cache = new Immutable.Cache(new Map(files))
+
+  self.addEventListener("activate", (event) => {
+    /**
+     * Uncache previous version
+     */
+    event.waitUntil(cache.uncache())
+
+    /**
+     * Precache current version
+     */
+    event.waitUntil(cache.precache())
+  })
+
+  /**
+   * Respond with cache
+   */
+  self.addEventListener("fetch", (event) => cache.handle(event))
+}
+```
+
+Rename all your `pages` with a `_` before (e.g. `./pages/example/posts.tsx` -> `./pages/example/_posts.tsx`)
+
+And create a `.html` file with the original page name and same folder structure in `public` (e.g. `./pages/example/posts.tsx` -> `./public/example/posts.html`) with the following content
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Loading...</title>
+  <script type="module">
+    const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
+    const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
+
+    if (!latestScriptRes.ok)
+      throw new Error(`Failed to fetch latest service-worker`)
+
+    const { pathname } = latestScriptUrl
+
+    const filename = pathname.split("/").at(-1)
+    const basename = filename.split(".").at(0)
+
+    const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
+    const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
+    const latestVersion = latestHashRawHex.slice(0, 6)
+
+    const latestVersionScriptPath = `${basename}.${latestVersion}.js`
+    const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+
+    await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
+    await navigator.serviceWorker.ready
+
+    location.reload()
+  </script>
+</head>
+
+</html>
+```
+
+I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/hazae41/chemin)) to avoid creating a bootpage for each page
+
+e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
+
+Use `Immutable.register()` to register your service-worker in your code
+
+e.g. If you were doing this
+
+```tsx
+await navigator.serviceWorker.register("/service_worker.js")
+```
+
+You now have to do this (always use `.latest.js`)
+
+```tsx
+await Immutable.register("/service_worker.latest.js")
+```
+
+You can use the returned async function to update your app
+
+```tsx
+navigator.serviceWorker.addEventListener("controllerchange", () => location.reload())
+
+const update = await Immutable.register("/service_worker.latest.js")
+
+if (update != null) {
+  /**
+   * Update available
+   */
+  button.onclick = async () => await update()
+  return
+}
+
+await navigator.serviceWorker.ready
+```
+
+You now have an immutable but updatable Next.js app!
+
+## Setup with raw script
+
+Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
+
+```bash
+npm i @hazae41/immutable
+```
+
+Install `@hazae41/next-as-immutable` as `devDependencies`
+
+```bash
+npm i -D @hazae41/next-as-immutable
+```
+
+Modify your `package.json` to add `node ./scripts/build.mjs` in order to postprocess each production build
+
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "next build && node ./scripts/build.mjs",
+  "start": "npx serve@latest out",
+  "lint": "next lint"
+},
+```
+
+Modify your `next.config.js` to build and hash your service-worker
+
+```js
+const TerserPlugin = require("terser-webpack-plugin")
+const path = require("path")
+const { NextAsImmutable, withImmutable } = require("@hazae41/next-as-immutable")
+const fs = require("fs")
+
+function* walkSync(directory) {
+  const files = fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name > b.name ? 1 : -1)
+
+  for (const file of files) {
+    if (file.isDirectory()) {
+      yield* walkSync(path.join(directory, file.name))
+    } else {
+      yield path.join(directory, file.name)
+    }
+  }
+}
+
+async function compileServiceWorker(wpconfig) {
+  await NextAsImmutable.compileAndVersion({
+    /**
+     * Just for logs
+     */
+    name: "service_worker",
+
+    /**
+     * DNTUYKWYD
+     */
+    devtool: false,
+    target: "webworker",
+    mode: wpconfig.mode,
+    resolve: wpconfig.resolve,
+    resolveLoader: wpconfig.resolveLoader,
+    module: wpconfig.module,
+    plugins: wpconfig.plugins,
+
+    /**
+     * Your service-worker source code
+     */
+    entry: "./src/mods/scripts/service_worker/index.ts",
+
+    output: {
+      /**
+       * DNTUYKWYD
+       */
+      path: path.join(process.cwd(), ".webpack"),
+
+      /**
+       * You can rename it or put it in a subfolder (always keep `.latest.js`)
+       * e.g. `"./v1/sw.latest.js"`
+       */
+      filename: "./service_worker.latest.js"
+    },
+
+    /**
+     * You MAY disable this
+     */
+    optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin()]
+    }
+  })
+}
+
+module.exports = withImmutable({
+  compiles: function* (wpconfig) {
+    for (const absolute of walkSync("./public")) {
+      const filename = path.basename(absolute)
+
+      /**
+       * You should modify this if you renamed your service-worker
+       */
+      if (filename.startsWith("service_worker."))
+        fs.rmSync(absolute, { force: true })
+
+      continue
+    }
+
+    yield compileServiceWorker(wpconfig)
+  }
+})
+
+```
+
+Add this glue code to your service-worker
+
+```tsx
+import { Immutable } from "@hazae41/immutable"
+
+declare const self: ServiceWorkerGlobalScope
+
+self.addEventListener("install", (event) => {
+  /**
+   * Auto-activate as the update was already accepted
+   */
+  self.skipWaiting()
+})
+
+/**
+ * Declare global macro
+ */
+declare const FILES: [string, string][]
+
+/**
+ * Only cache on production
+ */
+if (process.env.NODE_ENV === "production") {
+  const cache = new Immutable.Cache(new Map(FILES))
 
   self.addEventListener("activate", (event) => {
     /**
