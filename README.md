@@ -285,6 +285,8 @@ I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/ha
 
 e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
 
+Or you can simply run a script to copy all `<filename>.html` into `_<filename>.html` and copy a `start.html` (your bootpage) into all `<filename>.html`
+
 Use `Immutable.register()` to register your service-worker in your code
 
 e.g. If you were doing this
@@ -579,6 +581,8 @@ And create a `.html` file with the original page name and same folder structure 
 I recommend using a virtual path (e.g. [`@hazae41/chemin`](https://github.com/hazae41/chemin)) to avoid creating a bootpage for each page
 
 e.g. Not `https://example.com/example/posts` but `https://example.com/#/example/posts`
+
+Or you can simply run a script to copy all `<filename>.html` into `_<filename>.html` and copy a `start.html` (your bootpage) into all `<filename>.html`
 
 Use `Immutable.register()` to register your service-worker in your code
 
