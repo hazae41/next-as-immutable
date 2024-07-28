@@ -1,5 +1,4 @@
 import { Nullable } from "@hazae41/option"
-import crypto from "crypto"
 import fs from "fs"
 import { NextConfig } from "next"
 import Log from "next/dist/build/output/log.js"
@@ -28,89 +27,11 @@ export async function compile(wpconfig: Configuration) {
   Log.ready(`compiled ${wpconfig.name} in ${Date.now() - start} ms`)
 
   const dirname = path.dirname(wpconfig.output.filename)
-  const basename = path.basename(wpconfig.output.filename, ".js")
+  const basename = path.basename(wpconfig.output.filename)
 
   fs.mkdirSync(`./public/${dirname}`, { recursive: true })
 
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.js`, `./public/${dirname}/${basename}.js`)
-}
-
-export async function compileAndVersion(wpconfig: Configuration) {
-  if (typeof wpconfig.output !== "object")
-    throw new Error("output is required to be an object")
-  if (typeof wpconfig.output.filename !== "string")
-    throw new Error("output.filename is required to be a string")
-  if (!wpconfig.output.filename.endsWith(".latest.js"))
-    throw new Error("output.filename is required to end with .latest.js")
-
-  Log.wait(`compiling ${wpconfig.name}...`)
-
-  const start = Date.now()
-
-  const status = await new Promise<Nullable<Stats>>(ok => webpack(wpconfig).run((_, status) => ok(status)))
-
-  if (status?.hasErrors()) {
-    Log.error(`failed to compile ${wpconfig.name}`)
-    Log.error(status.toString({ colors: true }))
-    throw new Error(`Compilation failed`)
-  }
-
-  Log.ready(`compiled ${wpconfig.name} in ${Date.now() - start} ms`)
-
-  const dirname = path.dirname(wpconfig.output.filename)
-  const basename = path.basename(wpconfig.output.filename, ".latest.js")
-
-  fs.mkdirSync(`./public/${dirname}`, { recursive: true })
-
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.latest.js`, `./public/${dirname}/${basename}.latest.js`)
-
-  const content = fs.readFileSync(`./.webpack/${dirname}/${basename}.latest.js`)
-  const version = crypto.createHash("sha256").update(content).digest("hex").slice(0, 6)
-
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.latest.js`, `./public/${dirname}/${basename}.${version}.js`)
-}
-
-export async function compileAndVersionAsMacro(wpconfig: Configuration) {
-  if (typeof wpconfig.output !== "object")
-    throw new Error("output is required to be an object")
-  if (typeof wpconfig.output.filename !== "string")
-    throw new Error("output.filename is required to be a string")
-  if (!wpconfig.output.filename.endsWith(".latest.js"))
-    throw new Error("output.filename is required to end with .latest.js")
-
-  Log.wait(`compiling ${wpconfig.name}...`)
-
-  const start = Date.now()
-
-  const status = await new Promise<Nullable<Stats>>(ok => webpack(wpconfig).run((_, status) => ok(status)))
-
-  if (status?.hasErrors()) {
-    Log.error(`failed to compile ${wpconfig.name}`)
-    Log.error(status.toString({ colors: true }))
-    throw new Error(`Compilation failed`)
-  }
-
-  Log.ready(`compiled ${wpconfig.name} in ${Date.now() - start} ms`)
-
-  const dirname = path.dirname(wpconfig.output.filename)
-  const basename = path.basename(wpconfig.output.filename, ".latest.js")
-
-  fs.mkdirSync(`./public/${dirname}`, { recursive: true })
-
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.latest.js`, `./public/${dirname}/${basename}.latest.js`)
-
-  const content = fs.readFileSync(`./.webpack/${dirname}/${basename}.latest.js`)
-  const version = crypto.createHash("sha256").update(content).digest("hex").slice(0, 6)
-
-  /**
-   * Development
-   */
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.latest.js`, `./public/${dirname}/${basename}.${version}.js`)
-
-  /**
-   * Production
-   */
-  fs.copyFileSync(`./.webpack/${dirname}/${basename}.latest.js`, `./public/${dirname}/${basename}.${version}.macro.js`)
+  fs.copyFileSync(`./.webpack/${dirname}/${basename}`, `./public/${dirname}/${basename}`)
 }
 
 export interface ImmutableConfig {
