@@ -182,9 +182,9 @@ if (process.env.NODE_ENV === "production") {
   
     const files = new Array()
   
-    for (const absolute of walkSync("./out")) {
-      const dirname = path.dirname(absolute)
-      const filename = path.basename(absolute)
+    for (const pathname of walkSync("./out")) {
+      const dirname = path.dirname(pathname)
+      const filename = path.basename(pathname)
   
       /**
        * Do not cache saumon files
@@ -208,10 +208,10 @@ if (process.env.NODE_ENV === "production") {
       if (!filename.endsWith(".html") && fs.existsSync(\`./\${dirname}/_\${filename}/index\`))
         continue
   
-      const text = fs.readFileSync(absolute)
+      const text = fs.readFileSync(pathname)
       const hash = crypto.createHash("sha256").update(text).digest("hex")
   
-      const relative = path.relative("./out", absolute)
+      const relative = path.relative("./out", pathname)
   
       files.push([\`/\${relative}\`, hash])
     }
@@ -426,6 +426,51 @@ module.exports = withImmutable({
   }
 })
 
+```
+
+Create a `./scripts/build.mjs` file with this content
+
+```tsx
+const files = new Array()
+
+for (const pathname of walkSync("./out")) {
+  const dirname = path.dirname(pathname)
+  const filename = path.basename(pathname)
+
+  if (filename.startsWith("service_worker."))
+    continue
+
+  if (fs.existsSync(`./${dirname}/_${filename}`))
+    continue
+  if (filename.endsWith(".html") && fs.existsSync(`./${dirname}/_${filename.slice(0, -5)}/index.html`))
+    continue
+  if (!filename.endsWith(".html") && fs.existsSync(`./${dirname}/_${filename}/index`))
+    continue
+
+  const text = fs.readFileSync(pathname)
+  const hash = crypto.createHash("sha256").update(text).digest("hex")
+
+  const relative = path.relative("./out", pathname)
+
+  files.push([`/${relative}`, hash])
+}
+
+for (const pathname of walkSync("./out")) {
+  const filename = path.basename(pathname)
+
+  if (!filename.startsWith("service_worker."))
+    continue
+
+  if (filename === "service_worker.latest.js")
+    continue
+
+  const original = fs.readFileSync(pathname, "utf8")
+  const replaced = original.replaceAll("FILES", JSON.stringify(files))
+
+  fs.writeFileSync(pathname, replaced, "utf8")
+
+  break
+}
 ```
 
 Add this glue code to your service-worker
