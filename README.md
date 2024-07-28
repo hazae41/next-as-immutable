@@ -269,6 +269,8 @@ And create a `.html` file with the original page name and same folder structure 
     const latestVersionScriptPath = `${basename}.${latestVersion}.js`
     const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
 
+    localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
+
     await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
     await navigator.serviceWorker.ready
 
@@ -561,6 +563,8 @@ And create a `.html` file with the original page name and same folder structure 
 
     const latestVersionScriptPath = `${basename}.${latestVersion}.js`
     const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+
+    localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
 
     await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
     await navigator.serviceWorker.ready
