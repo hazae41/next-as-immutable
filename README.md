@@ -34,7 +34,7 @@ Modify your `package.json` to add `node ./scripts/build.mjs` in order to postpro
 "scripts": {
   "dev": "next dev",
   "build": "next build && node ./scripts/build.mjs",
-  "start": "npx serve@latest out",
+  "start": "npx serve ./out",
   "lint": "next lint"
 },
 ```
@@ -216,7 +216,7 @@ for (const pathname of walkSync(`./out`)) {
 }
 
 /**
- * Inject files into the service-worker and version it
+ * Inject `files` into the service-worker and version it
  */
 
 const original = fs.readFileSync(`./out/service_worker.latest.js`, "utf8")
@@ -243,7 +243,7 @@ self.addEventListener("install", (event) => {
 })
 
 /**
- * Declare global macro
+ * Declare global template
  */
 declare const FILES: [string, string][]
 
@@ -272,7 +272,7 @@ if (process.env.NODE_ENV === "production") {
 }
 ```
 
-Use `Immutable.register()` to register your service-worker in your code
+Use `Immutable.register(pathOrUrl)` to register your service-worker in your code
 
 e.g. If you were doing this
 
