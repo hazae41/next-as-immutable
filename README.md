@@ -69,6 +69,54 @@ Create a `./serve.json` file with this content
 }
 ```
 
+You can build your service-worker with [NextSidebuild](https://github.com/hazae41/next-sidebuild)
+
+Just name your service-worker like `<name>.latest.js` and put it in the `./public` folder
+
+Add this glue code to your service-worker
+
+```tsx
+import { Immutable } from "@hazae41/immutable"
+
+declare const self: ServiceWorkerGlobalScope
+
+self.addEventListener("install", (event) => {
+  /**
+   * Auto-activate as the update was already accepted
+   */
+  self.skipWaiting()
+})
+
+/**
+ * Declare global template
+ */
+declare const FILES: [string, string][]
+
+/**
+ * Only cache on production
+ */
+if (process.env.NODE_ENV === "production") {
+  const cache = new Immutable.Cache(new Map(FILES))
+
+  self.addEventListener("activate", (event) => {
+    /**
+     * Uncache previous version
+     */
+    event.waitUntil(cache.uncache())
+
+    /**
+     * Precache current version
+     */
+    event.waitUntil(cache.precache())
+  })
+
+  /**
+   * Respond with cache
+   */
+  self.addEventListener("fetch", (event) => cache.handle(event))
+}
+```
+
 Create a `./public/start.html` file with this content
 
 ```html
@@ -196,50 +244,6 @@ const version = crypto.createHash("sha256").update(replaced).digest("hex").slice
 
 fs.writeFileSync(`./out/service_worker.latest.js`, replaced, "utf8")
 fs.writeFileSync(`./out/service_worker.${version}.js`, replaced, "utf8")
-```
-
-Add this glue code to your service-worker
-
-```tsx
-import { Immutable } from "@hazae41/immutable"
-
-declare const self: ServiceWorkerGlobalScope
-
-self.addEventListener("install", (event) => {
-  /**
-   * Auto-activate as the update was already accepted
-   */
-  self.skipWaiting()
-})
-
-/**
- * Declare global template
- */
-declare const FILES: [string, string][]
-
-/**
- * Only cache on production
- */
-if (process.env.NODE_ENV === "production") {
-  const cache = new Immutable.Cache(new Map(FILES))
-
-  self.addEventListener("activate", (event) => {
-    /**
-     * Uncache previous version
-     */
-    event.waitUntil(cache.uncache())
-
-    /**
-     * Precache current version
-     */
-    event.waitUntil(cache.precache())
-  })
-
-  /**
-   * Respond with cache
-   */
-  self.addEventListener("fetch", (event) => cache.handle(event))
-}
 ```
 
 Use `Immutable.register(pathOrUrl)` to register your service-worker in your code
