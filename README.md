@@ -124,8 +124,11 @@ Create a `./public/start.html` file with this content
 <html>
 
 <head>
-  <title>Loading...</title>
   <script type="module">
+    const message = document.createElement("div")
+    message.textContent = "Loading..."
+    document.body.appendChild(message)
+
     try {
       const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
       const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
@@ -153,12 +156,9 @@ Create a `./public/start.html` file with this content
       await navigator.serviceWorker.ready
 
       location.reload()
-    } catch (e) {
-      console.error(e)
-
-      alert(`Failed to load the latest version of the webapp.`)
-
-      return
+    } catch (error) {
+      message.textContent = "Failed to load."
+      console.error(error)
     }
   </script>
 </head>
