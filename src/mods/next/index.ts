@@ -19,17 +19,17 @@ export function withNextAsImmutable(config: NextConfig): NextConfig {
       if (process.env.NODE_ENV !== "production")
         return []
 
-      return [
-        {
-          source: "/:path*",
-          headers: [
-            {
-              key: "Cache-Control",
-              value: "public, max-age=31536000, immutable",
-            },
-          ],
-        },
-      ]
+      const immutable = {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          }
+        ]
+      }
+
+      return [immutable]
     },
   }
 }
