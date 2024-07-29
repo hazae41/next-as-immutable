@@ -34,7 +34,7 @@ Modify your `package.json` to add `node ./scripts/build.mjs` in order to postpro
 "scripts": {
   "dev": "next dev",
   "build": "next build && node ./scripts/build.mjs",
-  "start": "npx serve ./out",
+  "start": "npx serve --config ../serve.json ./out",
   "lint": "next lint"
 },
 ```
