@@ -47,7 +47,7 @@ const TerserPlugin = require("terser-webpack-plugin")
 const { NextAsImmutable, withImmutable } = require("@hazae41/next-as-immutable")
 
 async function compileServiceWorker(wpconfig) {
-  await NextAsImmutable.compileAndVersion({
+  await NextAsImmutable.compile({
     /**
      * Just for logs
      */
