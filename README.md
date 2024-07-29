@@ -39,64 +39,18 @@ Modify your `package.json` to add `node ./scripts/build.mjs` in order to postpro
 },
 ```
 
-Modify your `next.config.js` to build your service-worker
+Modify your `next.config.js` to use exported build, immutable build ID, and immutable Cache-Control headers
 
 ```js
 const path = require("path")
 const TerserPlugin = require("terser-webpack-plugin")
-const { NextAsImmutable, withImmutable } = require("@hazae41/next-as-immutable")
+const { NextAsImmutable, withNextAsImmutable } = require("@hazae41/next-as-immutable")
 
-async function compileServiceWorker(wpconfig) {
-  await NextAsImmutable.compile({
-    /**
-     * Just for logs
-     */
-    name: "service_worker",
-
-    /**
-     * DNTUYKWYD
-     */
-    devtool: false,
-    target: "webworker",
-    mode: wpconfig.mode,
-    resolve: wpconfig.resolve,
-    resolveLoader: wpconfig.resolveLoader,
-    module: wpconfig.module,
-    plugins: wpconfig.plugins,
-
-    /**
-     * Your service-worker source code
-     */
-    entry: "./src/mods/scripts/service_worker/index.ts",
-
-    output: {
-      /**
-       * DNTUYKWYD
-       */
-      path: path.join(process.cwd(), ".webpack"),
-
-      /**
-       * You can rename it or put it in a subfolder (always keep `.latest.js` e.g. `./v1/sw.latest.js`)
-       */
-      filename: "./service_worker.latest.js"
-    },
-
-    /**
-     * You MAY disable this
-     */
-    optimization: {
-      minimize: true,
-      minimizer: [new TerserPlugin()]
-    }
-  })
-}
-
-module.exports = withImmutable({
-  compiles: function* (wpconfig) {
-    yield compileServiceWorker(wpconfig)
-  }
+module.exports = withNextAsImmutable({
+  /**
+   * Your Next.js config
+   */
 })
-
 ```
 
 Create a `./serve.json` file with this content
