@@ -16,8 +16,12 @@ export function withNextAsImmutable(config: NextConfig): NextConfig {
      * This should work on Vercel even with `output: "export"`
      */
     async headers() {
+      const headers = defaults.headers != null
+        ? await defaults.headers?.()
+        : []
+
       if (process.env.NODE_ENV !== "production")
-        return []
+        return headers
 
       const immutable = {
         source: "/:path*",
@@ -29,7 +33,7 @@ export function withNextAsImmutable(config: NextConfig): NextConfig {
         ]
       }
 
-      return [immutable]
+      return [...headers, immutable]
     },
   }
 }
