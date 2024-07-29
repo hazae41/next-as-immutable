@@ -17,7 +17,7 @@ export function withNextAsImmutable(config: NextConfig): NextConfig {
      */
     async headers() {
       const headers = defaults.headers != null
-        ? await defaults.headers?.()
+        ? await defaults.headers()
         : []
 
       if (process.env.NODE_ENV !== "production")
