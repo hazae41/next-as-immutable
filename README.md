@@ -42,9 +42,7 @@ Modify your `package.json` to add `node ./scripts/build.mjs` in order to postpro
 Modify your `next.config.js` to use exported build, immutable build ID, and immutable Cache-Control headers
 
 ```js
-const path = require("path")
-const TerserPlugin = require("terser-webpack-plugin")
-const { NextAsImmutable, withNextAsImmutable } = require("@hazae41/next-as-immutable")
+const { withNextAsImmutable } = require("@hazae41/next-as-immutable")
 
 module.exports = withNextAsImmutable({
   /**
