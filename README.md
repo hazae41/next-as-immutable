@@ -99,6 +99,24 @@ module.exports = withImmutable({
 
 ```
 
+Create a `./serve.json` file with this content
+
+```json
+{
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
+```
+
 Create a `./public/start.html` file with this content
 
 ```html
