@@ -12,6 +12,7 @@ npm i -D @hazae41/next-as-immutable
 
 Here is a list of immutable Next.js webapps
 
+- https://wallet.brume.money / https://github.com/brumewallet/wallet
 - https://dstorage.hazae41.me/v0 / https://github.com/hazae41/dstorage
 
 ## Setup
