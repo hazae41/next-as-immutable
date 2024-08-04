@@ -191,7 +191,7 @@ export function* walkSync(dir) {
  */
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `./out/start.html`)
+  if (pathname === `out/start.html`)
     continue
 
   const dirname = path.dirname(pathname)
@@ -213,7 +213,7 @@ fs.rmSync(`./out/start.html`)
 const files = new Array()
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `./out/service_worker.latest.js`)
+  if (pathname === `out/service_worker.latest.js`)
     continue
 
   const dirname = path.dirname(pathname)
