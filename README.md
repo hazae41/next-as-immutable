@@ -2,18 +2,11 @@
 
 Create [immutable](https://github.com/hazae41/immutable) Next.js webapps that are secure and resilient.
 
-```bash
-npm i -D @hazae41/next-as-immutable
-```
-
-[**Node Package 📦**](https://www.npmjs.com/package/@hazae41/next-as-immutable)
-
 ## Examples
 
 Here is a list of immutable Next.js webapps
 
 - https://wallet.brume.money / https://github.com/brumewallet/wallet
-- https://dstorage.hazae41.me/v0 / https://github.com/hazae41/dstorage
 
 ## Setup
 
@@ -21,12 +14,6 @@ Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
 
 ```bash
 npm i @hazae41/immutable
-```
-
-Install `@hazae41/next-as-immutable` as `devDependencies`
-
-```bash
-npm i -D @hazae41/next-as-immutable
 ```
 
 Modify your `package.json` to add `node ./scripts/build.mjs` in order to postprocess each production build
@@ -43,13 +30,64 @@ Modify your `package.json` to add `node ./scripts/build.mjs` in order to postpro
 Modify your `next.config.js` to use exported build, immutable build ID, and immutable Cache-Control headers
 
 ```js
-const { withNextAsImmutable } = require("@hazae41/next-as-immutable")
-
-module.exports = withNextAsImmutable({
+module.exports = {
   /**
-   * Your Next.js config
+   * Recommended in order to output the webapp as HTML
    */
-})
+  output: "export",
+
+  /**
+   * Recommended in order to get deterministic build ID
+   */
+  generateBuildId() {
+    return "immutable"
+  },
+
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          /**
+           * Recommended in order to be embedded with strong restrictions
+           */
+          {
+            key: "Allow-CSP-From",
+            value: "*"
+          },
+          /**
+           * Mandatory in order to get almost immutable caching
+           */
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          }
+        ]
+      }
+    ]
+  },
+
+  async rewrites() {
+    return {
+      beforeFiles: [
+        /**
+         * Recommended in order to keep a good SEO
+         */
+        {
+          source: "/",
+          has: [
+            {
+              type: "header",
+              key: "user-agent",
+              value: ".*(bot|spider).*"
+            }
+          ],
+          destination: "/_index"
+        }
+      ]
+    }
+  }
+}
 ```
 
 Create a `./serve.json` file with this content
@@ -61,10 +99,23 @@ Create a `./serve.json` file with this content
       "source": "**/*",
       "headers": [
         {
+          "key": "Allow-CSP-From",
+          "value": "*"
+        },
+        {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "headers": {
+        "user-agent": ".*(bot|spider).*"
+      },
+      "destination": "/_index.html"
     }
   ]
 }
@@ -125,19 +176,44 @@ Create a `./public/start.html` file with this content
 <html>
 
 <head>
-  <script type="module">
-    const message = document.createElement("div")
-    message.textContent = "Loading..."
-    document.body.appendChild(message)
+  <style>
+    html {
+      height: 100%;
+      width: 100%;
+    }
 
+    body {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #000;
+      }
+    }
+  </style>
+  <script type="module">
     try {
       const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
       const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
 
       if (!latestScriptRes.ok)
         throw new Error(`Failed to fetch latest service-worker`)
-      if (latestScriptRes.headers.get("cache-control") !== "public, max-age=31536000, immutable")
-        throw new Error(`Wrong Cache-Control header for latest service-worker`)
+
+      const cache = latestScriptRes.headers.get("cache-control")
+
+      if (!cache?.includes("immutable"))
+        alert("This webapp is not distributed as immutable. Use it at your own risk.")
+
+      const ttl = cache?.split(",").map(s => s.trim()).find(s => s.startsWith("max-age="))?.split("=").at(-1)
+
+      if (ttl !== "31536000")
+        alert("This webapp is distributed with a time-to-live of less than 1 year. Use it at your own risk.")
 
       const { pathname } = latestScriptUrl
 
@@ -158,14 +234,21 @@ Create a `./public/start.html` file with this content
 
       location.reload()
     } catch (error) {
-      message.textContent = "Failed to load."
       console.error(error)
+
+      alert(`An error occurred when loading this website. Please try again later.`)
     }
   </script>
 </head>
 
+<body>
+  <img style="width: 100px; height: 100px;" src="/favicon.png" alt="favicon" />
+</body>
+
 </html>
 ```
+
+And put your webapp icon in `./public/favicon.png`
 
 Create a `./scripts/build.mjs` file with this content
 
