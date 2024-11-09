@@ -1,6 +1,6 @@
 # Next.js as Immutable
 
-Create [immutable](https://github.com/hazae41/immutable) Next.js webapps that are secure and resilient.
+A starter [immutable](https://github.com/hazae41/immutable) Next.js webapp
 
 ```bash
 git clone https://github.com/hazae41/next-as-immutable.git
@@ -12,7 +12,7 @@ Here is a list of immutable Next.js webapps
 
 - https://wallet.brume.money / https://github.com/brumewallet/wallet
 
-## Setup
+## Migrate
 
 Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
 
