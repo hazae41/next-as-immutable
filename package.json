@@ -1,63 +1,28 @@
 {
-  "type": "module",
-  "name": "@hazae41/next-as-immutable",
-  "version": "1.0.1",
-  "description": "Create immutable Next.js webapps",
-  "homepage": "https://github.com/hazae41/next-as-immutable",
-  "repository": "github:hazae41/next-as-immutable",
-  "author": "hazae41",
-  "license": "MIT",
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.mjs",
-  "types": "./dist/types/index.d.ts",
-  "sideEffects": false,
-  "files": [
-    "./dist/esm",
-    "./dist/cjs",
-    "./dist/types"
-  ],
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "rimraf dist && rollup -c",
-    "test": "node ./dist/test/index.test.mjs",
-    "prepare": "npm run build"
+    "dev": "next dev",
+    "build": "next build && node ./scripts/build.mjs",
+    "start": "npx serve --config ../serve.json ./out",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hazae41/immutable": "^1.0.13",
+    "next": "15.0.3",
+    "react": "19.0.0-rc-66855b96-20241106",
+    "react-dom": "19.0.0-rc-66855b96-20241106"
   },
   "devDependencies": {
-    "@hazae41/phobos": "^1.0.10",
-    "@hazae41/rimraf": "^1.0.1",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@types/node": "^20.14.10",
-    "rollup": "^4.18.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-node-externals": "^7.1.2",
-    "tslib": "^2.6.3",
-    "typescript": "^5.5.3"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/cjs/index.cjs"
-    }
-  },
-  "keywords": [
-    "next",
-    "next.js",
-    "react",
-    "react.js",
-    "immutable",
-    "offline",
-    "cached",
-    "service-worker",
-    "serviceworker",
-    "typescript",
-    "esmodules",
-    "tested",
-    "unit-tested"
-  ],
-  "dependencies": {
-    "@hazae41/option": "^1.0.27"
-  },
-  "peerDependencies": {
-    "next": "^14"
+    "@hazae41/next-sidebuild": "^1.0.2",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.3",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }

@@ -2,6 +2,10 @@
 
 Create [immutable](https://github.com/hazae41/immutable) Next.js webapps that are secure and resilient.
 
+```bash
+git clone https://github.com/hazae41/next-as-immutable.git
+```
+
 ## Examples
 
 Here is a list of immutable Next.js webapps
@@ -123,7 +127,7 @@ Create a `./serve.json` file with this content
 
 You can build your service-worker with [NextSidebuild](https://github.com/hazae41/next-sidebuild)
 
-Just name your service-worker like `<name>.latest.js` and put it in the `./public` folder
+Just name your service-worker like `<name>.js` and put it in the `./public` folder
 
 Add this glue code to your service-worker
 
@@ -132,7 +136,7 @@ import { Immutable } from "@hazae41/immutable"
 
 declare const self: ServiceWorkerGlobalScope
 
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
   /**
    * Auto-activate as the update was already accepted
    */
@@ -296,7 +300,7 @@ fs.rmSync(`./out/start.html`)
 const files = new Array()
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/service_worker.latest.js`)
+  if (pathname === `out/service_worker.js`)
     continue
 
   const dirname = path.dirname(pathname)
@@ -309,10 +313,10 @@ for (const pathname of walkSync(`./out`)) {
   if (!filename.endsWith(".html") && fs.existsSync(`./${dirname}/_${filename}/index`))
     continue
 
+  const relative = path.relative(`./out`, pathname)
+
   const text = fs.readFileSync(pathname)
   const hash = crypto.createHash("sha256").update(text).digest("hex")
-
-  const relative = path.relative(`./out`, pathname)
 
   files.push([`/${relative}`, hash])
 }
@@ -321,11 +325,12 @@ for (const pathname of walkSync(`./out`)) {
  * Inject `files` into the service-worker and version it
  */
 
-const original = fs.readFileSync(`./out/service_worker.latest.js`, "utf8")
+const original = fs.readFileSync(`./out/service_worker.js`, "utf8")
 const replaced = original.replaceAll("FILES", JSON.stringify(files))
 
 const version = crypto.createHash("sha256").update(replaced).digest("hex").slice(0, 6)
 
+fs.writeFileSync(`./out/service_worker.js`, replaced, "utf8")
 fs.writeFileSync(`./out/service_worker.latest.js`, replaced, "utf8")
 fs.writeFileSync(`./out/service_worker.${version}.js`, replaced, "utf8")
 ```

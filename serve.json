@@ -1,0 +1,26 @@
+{
+  "headers": [
+    {
+      "source": "**/*",
+      "headers": [
+        {
+          "key": "Allow-CSP-From",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "headers": {
+        "user-agent": ".*(bot|spider).*"
+      },
+      "destination": "/_index.html"
+    }
+  ]
+}
