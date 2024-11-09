@@ -1,6 +1,6 @@
 # Next.js as Immutable
 
-A starter [immutable](https://github.com/hazae41/immutable) Next.js webapp
+An [immutable](https://github.com/hazae41/immutable) Next.js webapp starter
 
 ```bash
 git clone https://github.com/hazae41/next-as-immutable.git
