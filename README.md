@@ -14,6 +14,8 @@ Here is a list of immutable Next.js webapps
 
 ## Migrate
 
+You can migrate an existing Next.js webapp by following these steps
+
 Install [`@hazae41/immutable`](https://github.com/hazae41/immutable)
 
 ```bash
