@@ -15,11 +15,13 @@ export function* walkSync(dir) {
 }
 
 /**
- * Replace all .html files by start.html
+ * Replace all .html files by loader.html
  */
 
+const loader = fs.readFileSync(`./out/loader.html`, "utf8")
+
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/start.html`)
+  if (pathname === `out/loader.html`)
     continue
 
   const dirname = path.dirname(pathname)
@@ -29,10 +31,14 @@ for (const pathname of walkSync(`./out`)) {
     continue
 
   fs.copyFileSync(pathname, `./${dirname}/_${filename}`)
-  fs.copyFileSync(`./out/start.html`, pathname)
+
+  const injected = fs.readFileSync(pathname, "utf8")
+  const replaced = loader.replaceAll("INJECT_HTML", btoa(injected))
+
+  fs.writeFileSync(pathname, replaced, "utf8")
 }
 
-fs.rmSync(`./out/start.html`)
+fs.rmSync(`./out/loader.html`)
 
 /**
  * Find files to cache and compute their hash

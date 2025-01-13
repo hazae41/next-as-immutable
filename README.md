@@ -71,27 +71,6 @@ module.exports = {
         ]
       }
     ]
-  },
-
-  async rewrites() {
-    return {
-      beforeFiles: [
-        /**
-         * Recommended in order to keep a good SEO
-         */
-        {
-          source: "/",
-          has: [
-            {
-              type: "header",
-              key: "user-agent",
-              value: ".*(bot|spider).*"
-            }
-          ],
-          destination: "/_index"
-        }
-      ]
-    }
   }
 }
 ```
@@ -113,15 +92,6 @@ Create a `./serve.json` file with this content
           "value": "public, max-age=31536000, immutable"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "headers": {
-        "user-agent": ".*(bot|spider).*"
-      },
-      "destination": "/_index.html"
     }
   ]
 }
@@ -175,7 +145,7 @@ if (process.env.NODE_ENV === "production") {
 }
 ```
 
-Create a `./public/start.html` file with this content
+Create a `./public/loader.html` file with this content
 
 ```html
 <!DOCTYPE html>
@@ -204,46 +174,62 @@ Create a `./public/start.html` file with this content
     }
   </style>
   <script type="module">
-    try {
-      const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
-      const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
+    await(async () => {
+      try {
+        if (navigator.userAgent.match(/(bot|spider)/) != null) {
+          const html = atob("INJECT_HTML")
 
-      if (!latestScriptRes.ok)
-        throw new Error(`Failed to fetch latest service-worker`)
+          console.log("Beep boop")
 
-      const cache = latestScriptRes.headers.get("cache-control")
+          document.open()
+          document.write(html)
+          document.close()
 
-      if (!cache?.includes("immutable"))
-        alert("This webapp is not distributed as immutable. Use it at your own risk.")
+          return
+        }
 
-      const ttl = cache?.split(",").map(s => s.trim()).find(s => s.startsWith("max-age="))?.split("=").at(-1)
+        const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
+        const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
 
-      if (ttl !== "31536000")
-        alert("This webapp is distributed with a time-to-live of less than 1 year. Use it at your own risk.")
+        if (!latestScriptRes.ok)
+          throw new Error(`Failed to fetch latest service-worker`, { cause: latestScriptRes.status })
 
-      const { pathname } = latestScriptUrl
+        const cache = latestScriptRes.headers.get("cache-control")
 
-      const filename = pathname.split("/").at(-1)
-      const basename = filename.split(".").at(0)
+        if (!cache?.includes("immutable"))
+          alert("This webapp is not distributed as immutable. Use it at your own risk.")
 
-      const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
-      const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
-      const latestVersion = latestHashRawHex.slice(0, 6)
+        const ttl = cache?.split(",").map(s => s.trim()).find(s => s.startsWith("max-age="))?.split("=").at(-1)
 
-      const latestVersionScriptPath = `${basename}.${latestVersion}.js`
-      const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+        if (ttl !== "31536000")
+          alert("This webapp is distributed with a time-to-live of less than 1 year. Use it at your own risk.")
 
-      localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
+        const { pathname } = latestScriptUrl
 
-      await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
-      await navigator.serviceWorker.ready
+        const filename = pathname.split("/").at(-1)
+        const basename = filename.split(".").at(0)
 
-      location.reload()
-    } catch (error) {
-      console.error(error)
+        const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
+        const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
+        const latestVersion = latestHashRawHex.slice(0, 6)
 
-      alert(`An error occurred when loading this website. Please try again later.`)
-    }
+        const latestVersionScriptPath = `${basename}.${latestVersion}.js`
+        const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+
+        localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
+
+        await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
+        await navigator.serviceWorker.ready
+
+        location.reload()
+      } catch (error) {
+        console.error(error)
+
+        alert(`An error occurred when loading this website. Please try again later.`)
+
+        return
+      }
+    })()
   </script>
 </head>
 
@@ -276,11 +262,12 @@ export function* walkSync(dir) {
 }
 
 /**
- * Replace all .html files by start.html
+ * Replace all .html files by loader.html
  */
+const loader = fs.readFileSync(`./out/loader.html`, "utf8")
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/start.html`)
+  if (pathname === `out/loader.html`)
     continue
 
   const dirname = path.dirname(pathname)
@@ -290,10 +277,14 @@ for (const pathname of walkSync(`./out`)) {
     continue
 
   fs.copyFileSync(pathname, `./${dirname}/_${filename}`)
-  fs.copyFileSync(`./out/start.html`, pathname)
+
+  const injected = fs.readFileSync(pathname, "utf8")
+  const replaced = loader.replaceAll("INJECT_HTML", btoa(injected))
+
+  fs.writeFileSync(pathname, replaced, "utf8")
 }
 
-fs.rmSync(`./out/start.html`)
+fs.rmSync(`./out/loader.html`)
 
 /**
  * Find files to cache and compute their hash

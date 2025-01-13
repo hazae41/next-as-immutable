@@ -97,29 +97,6 @@ const nextConfig: NextConfig = withNextSidebuild({
         ]
       }
     ]
-  },
-
-  async rewrites() {
-    return {
-      beforeFiles: [
-        /**
-         * Recommended in order to keep a good SEO
-         */
-        {
-          source: "/",
-          has: [
-            {
-              type: "header",
-              key: "user-agent",
-              value: ".*(bot|spider).*"
-            }
-          ],
-          destination: "/_index"
-        }
-      ],
-      afterFiles: [],
-      fallback: []
-    }
   }
 });
 

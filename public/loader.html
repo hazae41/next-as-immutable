@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    html {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #000;
+      }
+    }
+  </style>
+  <script type="module">
+    await(async () => {
+      try {
+        if (navigator.userAgent.match(/(bot|spider)/) != null) {
+          const html = atob("INJECT_HTML")
+
+          console.log("Beep boop")
+
+          document.open()
+          document.write(html)
+          document.close()
+
+          return
+        }
+
+        const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
+        const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
+
+        if (!latestScriptRes.ok)
+          throw new Error(`Failed to fetch latest service-worker`, { cause: latestScriptRes.status })
+
+        const cache = latestScriptRes.headers.get("cache-control")
+
+        if (!cache?.includes("immutable"))
+          alert("This webapp is not distributed as immutable. Use it at your own risk.")
+
+        const ttl = cache?.split(",").map(s => s.trim()).find(s => s.startsWith("max-age="))?.split("=").at(-1)
+
+        if (ttl !== "31536000")
+          alert("This webapp is distributed with a time-to-live of less than 1 year. Use it at your own risk.")
+
+        const { pathname } = latestScriptUrl
+
+        const filename = pathname.split("/").at(-1)
+        const basename = filename.split(".").at(0)
+
+        const latestHashBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", await latestScriptRes.arrayBuffer()))
+        const latestHashRawHex = Array.from(latestHashBytes).map(b => b.toString(16).padStart(2, "0")).join("")
+        const latestVersion = latestHashRawHex.slice(0, 6)
+
+        const latestVersionScriptPath = `${basename}.${latestVersion}.js`
+        const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
+
+        localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
+
+        await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
+        await navigator.serviceWorker.ready
+
+        location.reload()
+      } catch (error) {
+        console.error(error)
+
+        alert(`An error occurred when loading this website. Please try again later.`)
+
+        return
+      }
+    })()
+  </script>
+</head>
+
+<body>
+  <img style="width: 100px; height: 100px;" src="/favicon.ico" alt="favicon" />
+</body>
+
+</html>

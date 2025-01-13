@@ -13,14 +13,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "headers": {
-        "user-agent": ".*(bot|spider).*"
-      },
-      "destination": "/_index.html"
-    }
   ]
 }
