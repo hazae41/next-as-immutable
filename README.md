@@ -10,7 +10,7 @@ git clone https://github.com/hazae41/next-as-immutable.git
 
 Here is a list of immutable Next.js webapps
 
-- https://wallet.brume.money / https://github.com/brumewallet/wallet
+- https://wallet.brume.money / https://github.com/brumeproject/wallet
 
 ## Migrate
 
