@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@hazae41/next-sidebuild": "^1.0.2",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.0.14",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
