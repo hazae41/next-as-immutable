@@ -23,7 +23,7 @@ async function compileServiceWorker(wpconfig: any) {
       /**
        * Output file relative to `./out`
        */
-      filename: "./service_worker.js",
+      filename: "./service_worker.latest.js",
 
       /**
        * DNTUYKWYD

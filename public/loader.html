@@ -68,7 +68,9 @@
 
         localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
 
-        await navigator.serviceWorker.register(latestVersionScriptUrl, { updateViaCache: "all" })
+        parent.postMessage([{ method: "httpsec_allow", params: [latestVersionScriptUrl.href] }], "*")
+
+        await navigator.serviceWorker.register(latestVersionScriptUrl.href, { updateViaCache: "all" })
         await navigator.serviceWorker.ready
 
         location.reload()

@@ -47,7 +47,7 @@ fs.rmSync(`./out/loader.html`)
 const files = new Array()
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/service_worker.js`)
+  if (pathname === `out/service_worker.latest.js`)
     continue
 
   const dirname = path.dirname(pathname)
@@ -72,11 +72,10 @@ for (const pathname of walkSync(`./out`)) {
  * Inject `files` into the service-worker and version it
  */
 
-const original = fs.readFileSync(`./out/service_worker.js`, "utf8")
+const original = fs.readFileSync(`./out/service_worker.latest.js`, "utf8")
 const replaced = original.replaceAll("FILES", JSON.stringify(files))
 
 const version = crypto.createHash("sha256").update(replaced).digest("hex").slice(0, 6)
 
-fs.writeFileSync(`./out/service_worker.js`, replaced, "utf8")
 fs.writeFileSync(`./out/service_worker.latest.js`, replaced, "utf8")
 fs.writeFileSync(`./out/service_worker.${version}.js`, replaced, "utf8")
