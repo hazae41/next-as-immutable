@@ -32,10 +32,18 @@ for (const pathname of walkSync(`./out`)) {
 
   fs.copyFileSync(pathname, `./${dirname}/_${filename}`)
 
-  const injected = fs.readFileSync(pathname, "utf8")
-  const replaced = loader.replaceAll("INJECT_HTML", btoa(injected))
+  const page = fs.readFileSync(pathname, "utf8")
 
-  fs.writeFileSync(pathname, replaced, "utf8")
+  const paged = loader.replaceAll("INJECT_PAGE", btoa(page))
+  const inter = paged.replaceAll("INJECT_HASH", "DUMMY_HASH")
+
+  console.log(inter)
+
+  const hash = crypto.createHash("sha256").update(inter).digest("hex")
+
+  const final = paged.replaceAll("INJECT_HASH", hash)
+
+  fs.writeFileSync(pathname, final, "utf8")
 }
 
 fs.rmSync(`./out/loader.html`)
