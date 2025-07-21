@@ -26,10 +26,11 @@
   <script type="module">
     await(async () => {
       try {
+        /**
+         * Return the unsafe page to crawlers because we want to be indexed as fast as possible, we don't care about security, and we don't know which APIs they support
+         */
         if (navigator.userAgent.match(/(bot|spider)/) != null) {
           const html = atob("INJECT_PAGE")
-
-          console.log("Beep boop")
 
           document.open()
           document.write(html)
@@ -38,7 +39,10 @@
           return
         }
 
-        if (parent !== window) {
+        /**
+         * Check HTML integrity by computing the hash of the HTML and comparing it to the precomputed value, this is safe because the integrity of this script has already been checked.
+         */
+        {
           const final = `<!DOCTYPE html><html>${document.documentElement.innerHTML}</html>`
 
           const inter = final
@@ -53,20 +57,12 @@
           if (hexa !== "INJECT_HASH")
             throw new Error(`Invalid hash. Expected ${"INJECT_HASH"} but computed ${hexa}.`)
 
-          parent.postMessage([{ method: "httpsec_get" }], "*")
-
-          const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
-
-          const myself = policy.match(/'([^']*)'/)?.[1]
-
-          if (policy !== `script-src '${myself}';`) {
-            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}';`] }], "*")
-
-            await new Promise(ok => addEventListener("message", ok, { once: true }))
-
-            return
-          }
+          // PASS
         }
+
+        /**
+         * Grab the latest service worker script 
+         */
 
         const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
         const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
@@ -96,11 +92,36 @@
         const latestVersionScriptPath = `${basename}.${latestVersion}.js`
         const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
 
+        /**
+         * Update HTTPSec policy to allow the service worker and other scripts
+         */
+        if (parent !== window) {
+          parent.postMessage([{ method: "httpsec_get" }], "*")
+
+          const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
+
+          const myself = policy.match(/'([^']*)'/)?.[1]
+
+          if (policy !== `script-src '${myself}' ${latestVersionScriptUrl};`) {
+            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}' ${latestVersionScriptUrl};`] }], "*")
+
+            await new Promise(ok => addEventListener("message", ok, { once: true }))
+
+            return
+          }
+        }
+
+        /**
+         * Register the service worker (it will verify and cache all pages)
+         */
         localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
 
         await navigator.serviceWorker.register(latestVersionScriptUrl.href, { updateViaCache: "all" })
         await navigator.serviceWorker.ready
 
+        /**
+         * Use the service worker version of this page
+         */
         location.reload()
       } catch (error) {
         console.error(error)
