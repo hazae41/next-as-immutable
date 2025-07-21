@@ -40,7 +40,7 @@
         }
 
         /**
-         * Update HTTPSec policy to allow the service worker and other workers
+         * Update HTTPSec policy to allow the service worker
          */
         if (parent !== window) {
           parent.postMessage([{ method: "httpsec_get" }], "*")
@@ -56,6 +56,8 @@
 
             return
           }
+
+          // PASS
         }
 
         /**
