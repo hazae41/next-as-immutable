@@ -35,9 +35,12 @@ for (const pathname of walkSync(`./out`)) {
   const page = fs.readFileSync(pathname, "utf8")
 
   const paged = loader.replaceAll("INJECT_PAGE", btoa(page))
-  const inter = paged.replaceAll("INJECT_HASH", "DUMMY_HASH")
 
-  console.log(inter)
+  const inter = paged
+    .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("\n", "")
+    .replaceAll("\r", "")
+    .replaceAll(" ", "")
 
   const hash = crypto.createHash("sha256").update(inter).digest("hex")
 

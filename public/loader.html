@@ -39,24 +39,28 @@
         }
 
         if (parent !== window) {
-          const final = `<!DOCTYPE html>\n<html>\n\n${document.documentElement.innerHTML}\n\n</html>`
-          const inter = final.replaceAll("INJECT_HASH", "DUMMY_HASH")
+          const final = `<!DOCTYPE html><html>${document.documentElement.innerHTML}</html>`
 
-          console.log(inter)
+          const inter = final
+            .replaceAll("INJECT_HASH", "DUMMY_HASH")
+            .replaceAll("\n", "")
+            .replaceAll("\r", "")
+            .replaceAll(" ", "")
 
           const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
+          const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
 
-          if (hash.toHex() !== "INJECT_HASH")
-            throw new Error(`Invalid hash ${hash.toHex()}`)
+          if (hexa !== "INJECT_HASH")
+            throw new Error(`Invalid hash. Expected ${"INJECT_HASH"} but computed ${hexa}.`)
 
           parent.postMessage([{ method: "httpsec_get" }], "*")
 
           const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
 
-          if (policy !== "script-src * data: blob: 'unsafe-inline' 'unsafe-eval';") {
-            const self = policy.match(/'([^']*)'/)?.[1]
+          const myself = policy.match(/'([^']*)'/)?.[1]
 
-            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${self}';`] }], "*")
+          if (policy !== `script-src '${myself}';`) {
+            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}';`] }], "*")
 
             await new Promise(ok => addEventListener("message", ok, { once: true }))
 
@@ -110,7 +114,7 @@
 </head>
 
 <body>
-  <img style="width: 100px; height: 100px;" src="/favicon.ico" alt="favicon" />
+  <img style="width: 100px; height: 100px;" src="/favicon.ico" alt="favicon">
 </body>
 
 </html>
