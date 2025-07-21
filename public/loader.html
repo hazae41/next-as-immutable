@@ -40,6 +40,25 @@
         }
 
         /**
+         * Update HTTPSec policy to allow the service worker and other workers
+         */
+        if (parent !== window) {
+          parent.postMessage([{ method: "httpsec_get" }], "*")
+
+          const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
+
+          const myself = policy.match(/'([^']*)'/)?.[1]
+
+          if (policy !== `script-src '${myself}'; worker-src 'self';`) {
+            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}'; worker-src 'self';`] }], "*")
+
+            await new Promise(ok => addEventListener("message", ok, { once: true }))
+
+            return
+          }
+        }
+
+        /**
          * Check HTML integrity by computing the hash of the HTML and comparing it to the precomputed value, this is safe because the integrity of this script has already been checked.
          */
         {
@@ -59,10 +78,6 @@
 
           // PASS
         }
-
-        /**
-         * Grab the latest service worker script 
-         */
 
         const latestScriptUrl = new URL(`/service_worker.latest.js`, location.href)
         const latestScriptRes = await fetch(latestScriptUrl, { cache: "reload" })
@@ -91,25 +106,6 @@
 
         const latestVersionScriptPath = `${basename}.${latestVersion}.js`
         const latestVersionScriptUrl = new URL(latestVersionScriptPath, latestScriptUrl)
-
-        /**
-         * Update HTTPSec policy to allow the service worker and other scripts
-         */
-        if (parent !== window) {
-          parent.postMessage([{ method: "httpsec_get" }], "*")
-
-          const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
-
-          const myself = policy.match(/'([^']*)'/)?.[1]
-
-          if (policy !== `script-src '${myself}'; worker-src ${latestVersionScriptUrl};`) {
-            parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}'; worker-src ${latestVersionScriptUrl};`] }], "*")
-
-            await new Promise(ok => addEventListener("message", ok, { once: true }))
-
-            return
-          }
-        }
 
         /**
          * Register the service worker (it will verify and cache all pages)
