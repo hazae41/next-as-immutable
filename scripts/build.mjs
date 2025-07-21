@@ -18,7 +18,9 @@ export function* walkSync(dir) {
  * Replace all .html files by loader.html
  */
 
-const loader = fs.readFileSync(`./out/loader.html`, "utf8")
+const load = fs.readFileSync(`./out/loader.html`, "utf8")
+
+const script = fs.readFileSync("./scripts/load.mjs", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
   if (pathname === `out/loader.html`)
@@ -30,23 +32,43 @@ for (const pathname of walkSync(`./out`)) {
   if (!filename.endsWith(".html"))
     continue
 
-  fs.copyFileSync(pathname, `./${dirname}/_${filename}`)
-
   const page = fs.readFileSync(pathname, "utf8")
 
-  const paged = loader.replaceAll("INJECT_PAGE", btoa(page))
+  {
+    const begin = page
+      .replaceAll("<head>", `<head>\n   <script type="module">\n${script}\n   </script>`)
+      .replaceAll("INJECT_PAGE", btoa(page))
 
-  const inter = paged
-    .replaceAll("INJECT_HASH", "DUMMY_HASH")
-    .replaceAll("\n", "")
-    .replaceAll("\r", "")
-    .replaceAll(" ", "")
+    const inter = begin
+      .replaceAll("INJECT_HASH", "DUMMY_HASH")
+      .replaceAll("\n", "")
+      .replaceAll("\r", "")
+      .replaceAll(" ", "")
 
-  const hash = crypto.createHash("sha256").update(inter).digest("hex")
+    const hash = crypto.createHash("sha256").update(inter).digest("hex")
 
-  const final = paged.replaceAll("INJECT_HASH", hash)
+    const final = begin.replaceAll("INJECT_HASH", hash)
 
-  fs.writeFileSync(pathname, final, "utf8")
+    fs.writeFileSync(`./${dirname}/_${filename}`, final, "utf8")
+  }
+
+  {
+    const begin = load
+      .replaceAll("<head>", `<head>\n   <script type="module">\n${script}\n   </script>`)
+      .replaceAll("INJECT_PAGE", btoa(page))
+
+    const inter = begin
+      .replaceAll("INJECT_HASH", "DUMMY_HASH")
+      .replaceAll("\n", "")
+      .replaceAll("\r", "")
+      .replaceAll(" ", "")
+
+    const hash = crypto.createHash("sha256").update(inter).digest("hex")
+
+    const final = begin.replaceAll("INJECT_HASH", hash)
+
+    fs.writeFileSync(pathname, final, "utf8")
+  }
 }
 
 fs.rmSync(`./out/loader.html`)
