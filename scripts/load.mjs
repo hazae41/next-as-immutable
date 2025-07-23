@@ -37,7 +37,7 @@ await (async () => {
     /**
      * Check HTML integrity by computing the hash of the HTML and comparing it to the precomputed value, this is safe because the integrity of this script has already been checked.
      */
-    {
+    if (parent !== window) {
       const final = `<!DOCTYPE html><html>${document.documentElement.innerHTML}</html>`
 
       const inter = final
