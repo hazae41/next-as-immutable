@@ -36,7 +36,7 @@ for (const pathname of walkSync(`./out`)) {
 
   {
     const begin = page
-      .replaceAll("<head>", `<head>\n   <script type="module">\n${script}\n   </script>`)
+      .replaceAll("<head>", `<head>\n  <script type="module">\n${script}\n  </script>`)
       .replaceAll("INJECT_PAGE", btoa(page))
 
     const inter = begin
@@ -54,7 +54,7 @@ for (const pathname of walkSync(`./out`)) {
 
   {
     const begin = load
-      .replaceAll("<head>", `<head>\n   <script type="module">\n${script}\n   </script>`)
+      .replaceAll("<head>", `<head>\n  <script type="module">\n${script}\n  </script>`)
       .replaceAll("INJECT_PAGE", btoa(page))
 
     const inter = begin
