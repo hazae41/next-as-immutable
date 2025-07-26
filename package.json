@@ -9,19 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hazae41/immutable": "^1.0.13",
-    "next": "15.4.1",
+    "@hazae41/immutable": "^1.1.0",
+    "next": "15.4.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@hazae41/next-sidebuild": "^1.0.2",
     "@tailwindcss/postcss": "^4.1.11",
-    "@types/node": "^24.0.14",
+    "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "eslint": "^9.31.0",
-    "eslint-config-next": "15.4.1",
+    "eslint": "^9.32.0",
+    "eslint-config-next": "15.4.4",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3"
