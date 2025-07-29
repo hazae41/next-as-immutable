@@ -18,7 +18,7 @@ export function* walkSync(dir) {
  * Inject magic script into all .html files
  */
 
-const magic = fs.readFileSync("./scripts/magic.min.mjs", "utf8")
+const magic = fs.readFileSync("./scripts/magic.mjs", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
   const filename = path.basename(pathname)
@@ -31,9 +31,13 @@ for (const pathname of walkSync(`./out`)) {
 
   const inter = begin
     .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("/>", ">")
     .replaceAll("\n", "")
     .replaceAll("\r", "")
     .replaceAll(" ", "")
+    .toLowerCase()
+
+  console.log(pathname, inter)
 
   const hash = crypto.createHash("sha256").update(inter).digest("hex")
 

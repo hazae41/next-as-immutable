@@ -30,13 +30,17 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
    * Check HTML integrity by computing the hash of the HTML and comparing it to the precomputed value, this is safe because the integrity of this script has already been checked.
    */
   if (parent !== window) {
-    const final = `<!DOCTYPE html><html>${document.documentElement.innerHTML}</html>`
+    const final = `<!DOCTYPE html>${document.documentElement.outerHTML}`
 
     const inter = final
       .replaceAll("INJECT_HASH", "DUMMY_HASH")
+      .replaceAll("/>", ">")
       .replaceAll("\n", "")
       .replaceAll("\r", "")
       .replaceAll(" ", "")
+      .toLowerCase()
+
+    console.log(inter)
 
     const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
     const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
