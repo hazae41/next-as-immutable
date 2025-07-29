@@ -4,14 +4,16 @@ import type { AppProps } from "next/app";
 import { useEffect, useRef } from "react";
 
 async function register() {
-  navigator.serviceWorker.addEventListener("controllerchange", () => location.reload())
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    console.log("controller changed")
+  })
 
   const { update } = await Immutable.register("/service_worker.latest.js")
 
-  if (update != null && confirm("Update available, do you want to update now?")) {
-    await update()
-    return
-  }
+  // if (update != null && confirm("Update available, do you want to update now?")) {
+  //   await update()
+  //   return
+  // }
 
   await navigator.serviceWorker.ready
 }

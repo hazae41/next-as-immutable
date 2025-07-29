@@ -14,17 +14,17 @@ await (async () => {
     }
 
     /**
-     * Update HTTPSec policy to allow the service worker
+     * Update CSP policy to allow the service worker
      */
     if (parent !== window) {
-      parent.postMessage([{ method: "httpsec_get" }], "*")
+      parent.postMessage([{ method: "csp_get" }], "*")
 
       const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
 
       const myself = policy.match(/'([^']*)'/)?.[1]
 
       if (policy !== `script-src '${myself}'; worker-src 'self';`) {
-        parent.postMessage([{ method: "httpsec_set", params: [`script-src '${myself}'; worker-src 'self';`] }], "*")
+        parent.postMessage([{ method: "csp_set", params: [`script-src '${myself}'; worker-src 'self';`] }], "*")
 
         await new Promise(ok => addEventListener("message", ok, { once: true }))
 
@@ -86,7 +86,6 @@ await (async () => {
     /**
      * Register the service worker (it will verify and cache all pages)
      */
-    localStorage.setItem("service_worker.current.version", JSON.stringify(latestVersion))
 
     await navigator.serviceWorker.register(latestVersionScriptUrl.href, { updateViaCache: "all" })
     await navigator.serviceWorker.ready
