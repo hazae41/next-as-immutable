@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hazae41/immutable": "^1.1.0",
+    "@hazae41/immutable": "^1.1.2",
     "next": "15.4.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@hazae41/next-sidebuild": "^1.0.2",
