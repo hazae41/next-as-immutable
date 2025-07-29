@@ -15,63 +15,32 @@ export function* walkSync(dir) {
 }
 
 /**
- * Replace all .html files by loader.html
+ * Inject magic script into all .html files
  */
 
-const load = fs.readFileSync(`./out/loader.html`, "utf8")
-
-const script = fs.readFileSync("./scripts/load.mjs", "utf8")
+const magic = fs.readFileSync("./scripts/magic.min.mjs", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/loader.html`)
-    continue
-
-  const dirname = path.dirname(pathname)
   const filename = path.basename(pathname)
 
   if (!filename.endsWith(".html"))
     continue
 
-  const page = fs.readFileSync(pathname, "utf8")
+  const begin = fs.readFileSync(pathname, "utf8")
+    .replaceAll("<head>", `<head><script type="module">${magic}</script>`)
 
-  {
-    const begin = page
-      .replaceAll("<head>", `<head>\n  <script type="module">\n${script}\n  </script>`)
-      .replaceAll("INJECT_PAGE", btoa(page))
+  const inter = begin
+    .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("\n", "")
+    .replaceAll("\r", "")
+    .replaceAll(" ", "")
 
-    const inter = begin
-      .replaceAll("INJECT_HASH", "DUMMY_HASH")
-      .replaceAll("\n", "")
-      .replaceAll("\r", "")
-      .replaceAll(" ", "")
+  const hash = crypto.createHash("sha256").update(inter).digest("hex")
 
-    const hash = crypto.createHash("sha256").update(inter).digest("hex")
+  const final = begin.replaceAll("INJECT_HASH", hash)
 
-    const final = begin.replaceAll("INJECT_HASH", hash)
-
-    fs.writeFileSync(`./${dirname}/_${filename}`, final, "utf8")
-  }
-
-  {
-    const begin = load
-      .replaceAll("<head>", `<head>\n  <script type="module">\n${script}\n  </script>`)
-      .replaceAll("INJECT_PAGE", btoa(page))
-
-    const inter = begin
-      .replaceAll("INJECT_HASH", "DUMMY_HASH")
-      .replaceAll("\n", "")
-      .replaceAll("\r", "")
-      .replaceAll(" ", "")
-
-    const hash = crypto.createHash("sha256").update(inter).digest("hex")
-
-    const final = begin.replaceAll("INJECT_HASH", hash)
-
-    fs.writeFileSync(pathname, final, "utf8")
-  }
+  fs.writeFileSync(pathname, final, "utf8")
 }
-
-fs.rmSync(`./out/loader.html`)
 
 /**
  * Find files to cache and compute their hash
@@ -83,22 +52,12 @@ for (const pathname of walkSync(`./out`)) {
   if (pathname === `out/service_worker.latest.js`)
     continue
 
-  const dirname = path.dirname(pathname)
-  const filename = path.basename(pathname)
-
-  if (fs.existsSync(`./${dirname}/_${filename}`))
-    continue
-  if (filename.endsWith(".html") && fs.existsSync(`./${dirname}/_${filename.slice(0, -5)}/index.html`))
-    continue
-  if (!filename.endsWith(".html") && fs.existsSync(`./${dirname}/_${filename}/index`))
-    continue
-
   const relative = path.relative(`./out`, pathname)
 
   const text = fs.readFileSync(pathname)
-  const hash = crypto.createHash("sha256").update(text).digest("hex")
+  const hash = crypto.createHash("sha256").update(text).digest("base64")
 
-  files.push([`/${relative}`, hash])
+  files.push([`/${relative}`, `sha256-${hash}`])
 }
 
 /**
