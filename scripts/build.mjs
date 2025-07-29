@@ -37,8 +37,6 @@ for (const pathname of walkSync(`./out`)) {
     .replaceAll(" ", "")
     .toLowerCase()
 
-  console.log(pathname, inter)
-
   const hash = crypto.createHash("sha256").update(inter).digest("hex")
 
   const final = begin.replaceAll("INJECT_HASH", hash)
