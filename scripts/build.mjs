@@ -1,6 +1,12 @@
-import crypto from "crypto"
-import fs from "fs"
-import path from "path"
+import crypto from "crypto";
+import fs from "fs";
+import { JSDOM } from "jsdom";
+import path from "path";
+
+const { window } = new JSDOM(`<!DOCTYPE html><body></body>`);
+
+globalThis.DOMParser = window.DOMParser
+globalThis.XMLSerializer = window.XMLSerializer
 
 export function* walkSync(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true })
@@ -18,7 +24,7 @@ export function* walkSync(dir) {
  * Inject magic script into all .html files
  */
 
-const magic = fs.readFileSync("./scripts/magic.min.mjs", "utf8")
+const magic = fs.readFileSync("./scripts/magic.mjs", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
   const filename = path.basename(pathname)
@@ -26,8 +32,32 @@ for (const pathname of walkSync(`./out`)) {
   if (!filename.endsWith(".html"))
     continue
 
-  const begin = fs.readFileSync(pathname, "utf8")
-    .replaceAll("<head>", `<head><script type="module">${magic}</script>`)
+  const document = new DOMParser().parseFromString(fs.readFileSync(pathname, "utf8"), "text/html")
+
+  const scripts = document.querySelectorAll("script")
+
+  const sources = new Array()
+
+  for (const script of scripts) {
+    if (script.src) {
+      const text = fs.readFileSync(path.join("./out", script.src), "utf8")
+      const hash = crypto.createHash("sha256").update(text).digest("base64")
+
+      script.setAttribute("integrity", `sha256-${hash}`)
+
+      sources.push(`'sha256-${hash}'`);
+    } else {
+      const text = script.textContent || "";
+      const hash = crypto.createHash("sha256").update(text).digest("base64");
+
+      script.setAttribute("integrity", `sha256-${hash}`);
+
+      sources.push(`'sha256-${hash}'`);
+    }
+  }
+
+  const begin = new XMLSerializer().serializeToString(document)
+    .replaceAll("<head>", `<head><script type="module">${magic.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
 
   const inter = begin
     .replaceAll("INJECT_HASH", "DUMMY_HASH")

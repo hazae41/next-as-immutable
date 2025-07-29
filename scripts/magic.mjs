@@ -13,8 +13,8 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
     const myself = policy.match(/'([^']*)'/)?.[1]
 
-    if (policy !== `script-src '${myself}'; worker-src 'self';`) {
-      parent.postMessage([{ method: "csp_set", params: [`script-src '${myself}'; worker-src 'self';`] }], "*")
+    if (policy !== `script-src '${myself}' INJECT_SOURCES; worker-src 'self';`) {
+      parent.postMessage([{ method: "csp_set", params: [`script-src '${myself}' INJECT_SOURCES; worker-src 'self';`] }], "*")
 
       await new Promise(ok => addEventListener("message", ok, { once: true }))
 
