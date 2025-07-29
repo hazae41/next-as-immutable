@@ -17,13 +17,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       parent.postMessage([{ method: "csp_set", params: [`script-src '${myself}' INJECT_SOURCES; worker-src 'self';`] }], "*")
 
       await new Promise(ok => addEventListener("message", ok, { once: true }))
-
-      location.reload()
-
-      // DEAD
     }
-
-    // NOOP
   }
 
   /**
@@ -46,7 +40,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     if (hexa !== "INJECT_HASH")
       throw new Error(`Invalid hash. Expected ${"INJECT_HASH"} but computed ${hexa}.`)
 
-    // NOOP
+    parent.postMessage([{ method: "html_show" }], "*")
   }
 
   // NOOP
