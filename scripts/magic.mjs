@@ -40,8 +40,6 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       .replaceAll(" ", "")
       .toLowerCase()
 
-    console.log(inter)
-
     const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
     const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
 
