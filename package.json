@@ -15,7 +15,7 @@
     "react-dom": "19.1.1"
   },
   "devDependencies": {
-    "@hazae41/next-sidebuild": "^1.0.3",
+    "@hazae41/next-sidebuild": "^1.0.4",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^24.1.0",
