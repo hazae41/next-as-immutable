@@ -1,3 +1,4 @@
+import { walkSync } from "@/libs/walk";
 import crypto from "crypto";
 import fs from "fs";
 import { JSDOM } from "jsdom";
@@ -8,23 +9,11 @@ const { window } = new JSDOM(`<!DOCTYPE html><body></body>`);
 globalThis.DOMParser = window.DOMParser
 globalThis.XMLSerializer = window.XMLSerializer
 
-export function* walkSync(dir) {
-  const files = fs.readdirSync(dir, { withFileTypes: true })
-
-  for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(dir, file.name))
-    } else {
-      yield path.join(dir, file.name)
-    }
-  }
-}
-
 /**
  * Inject magic script into all .html files
  */
 
-const magic = fs.readFileSync("./scripts/magic.mjs", "utf8")
+const verifier = fs.readFileSync("./.webpack/verifier.js", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
   const filename = path.basename(pathname)
@@ -57,7 +46,7 @@ for (const pathname of walkSync(`./out`)) {
   }
 
   const begin = new XMLSerializer().serializeToString(document)
-    .replaceAll("<head>", `<head><script type="module">${magic.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
+    .replaceAll("<head>", `<head><script type="module">${verifier.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
 
   const inter = begin
     .replaceAll("INJECT_HASH", "DUMMY_HASH")
@@ -81,7 +70,9 @@ for (const pathname of walkSync(`./out`)) {
 const files = new Array()
 
 for (const pathname of walkSync(`./out`)) {
-  if (pathname === `out/service_worker.latest.js`)
+  const filename = path.basename(pathname)
+
+  if (filename === "service_worker.latest.js")
     continue
 
   const relative = path.relative(`./out`, pathname)

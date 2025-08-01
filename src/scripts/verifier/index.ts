@@ -1,3 +1,5 @@
+export { }
+
 /**
  * Return the unsafe page to crawlers because we want to be indexed as fast as possible, we don't care about security, and we don't know which APIs they support
  */
@@ -9,7 +11,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
   if (parent !== window) {
     parent.postMessage([{ method: "csp_get" }], "*")
 
-    const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then(r => r.data[0].result)
+    const policy = await new Promise(ok => addEventListener("message", ok, { once: true })).then((r: any) => r.data[0].result)
 
     const myself = policy.match(/'([^']*)'/)?.[1]
 

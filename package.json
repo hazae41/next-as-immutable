@@ -4,27 +4,28 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node ./scripts/build.mjs",
+    "build": "next build && node ./.webpack/builder.js",
     "start": "npx serve --config ../serve.json ./out",
     "lint": "next lint"
   },
   "dependencies": {
     "@hazae41/immutable": "^1.1.2",
-    "next": "15.4.4",
+    "next": "15.4.5",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },
   "devDependencies": {
-    "@hazae41/next-sidebuild": "^1.0.2",
+    "@hazae41/next-sidebuild": "^1.0.3",
     "@tailwindcss/postcss": "^4.1.11",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^24.1.0",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
     "eslint": "^9.32.0",
-    "eslint-config-next": "15.4.4",
+    "eslint-config-next": "15.4.5",
     "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
