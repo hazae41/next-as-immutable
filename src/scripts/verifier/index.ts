@@ -80,6 +80,15 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
           params: [location.href]
         }, timeout).catch(console.error)
       })
+
+      addEventListener("navigate", (event: any) => {
+        const timeout = AbortSignal.timeout(100)
+
+        Parent.requestOrThrow<void>({
+          method: "href_set",
+          params: [event.destination.url]
+        }, timeout).catch(console.error)
+      })
     }
   }
 }
