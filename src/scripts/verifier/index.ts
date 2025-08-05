@@ -1,4 +1,4 @@
-import { requestOrThrow } from "@/libs/rpc"
+import { Parent } from "@/libs/rpc"
 import { Result } from "@hazae41/result"
 
 /**
@@ -9,7 +9,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
   if (parent !== window) {
     const timeout = AbortSignal.timeout(100)
 
-    const result = await Result.runAndWrap(() => requestOrThrow<[string]>(parent, {
+    const result = await Result.runAndWrap(() => Parent.requestOrThrow<[string]>({
       method: "csp_get"
     }, timeout))
 
@@ -31,7 +31,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       if (policy !== expected) {
         const timeout = AbortSignal.timeout(100)
 
-        await requestOrThrow<void>(parent, {
+        await Parent.requestOrThrow<void>({
           method: "csp_set",
           params: [expected]
         }, timeout)
@@ -61,7 +61,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       const timeout = AbortSignal.timeout(100)
 
-      await requestOrThrow<void>(parent, {
+      await Parent.requestOrThrow<void>({
         method: "html_show"
       }, timeout)
     }
