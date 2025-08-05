@@ -13,7 +13,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       method: "csp_get"
     }, timeout))
 
-    console.warn(result.getAny())
+    console.debug("HTTPSec", "csp_get", result.getAny())
 
     /**
      * HTTPSec feature detected
@@ -27,8 +27,9 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       const policy = result.getOrThrow()
 
-      const selfsrc = policy.match(/'([^']*)'/)?.[1]
-      const expected = `script-src '${selfsrc}' INJECT_SOURCES; worker-src 'self';`
+      const self = policy.match(/'([^']*)'/)?.[1]
+
+      const expected = `script-src '${self}' INJECT_SOURCES; worker-src 'self';`
 
       if (policy !== expected) {
         const timeout = AbortSignal.timeout(1000)
