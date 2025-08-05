@@ -65,8 +65,21 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       const timeout = AbortSignal.timeout(100)
 
       await Parent.requestOrThrow<void>({
-        method: "html_show"
+        method: "frame_show"
       }, timeout)
+
+      /**
+       * Set the hash change listener to update the parent with the current hash
+       */
+
+      addEventListener("hashchange", () => {
+        const timeout = AbortSignal.timeout(100)
+
+        Parent.requestOrThrow<void>({
+          method: "href_set",
+          params: [location.href]
+        }, timeout).catch(console.error)
+      })
     }
   }
 }
