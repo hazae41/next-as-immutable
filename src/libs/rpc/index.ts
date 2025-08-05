@@ -31,8 +31,8 @@ export namespace Parent {
     }
 
     try {
-      parent.addEventListener("message", onMessage)
-      parent.addEventListener("messageerror", onError)
+      addEventListener("message", onMessage)
+      addEventListener("messageerror", onError)
       signal.addEventListener("abort", onAbort)
 
       const request = new RpcRequest(id, method, params)
@@ -43,8 +43,8 @@ export namespace Parent {
 
       return response.getOrThrow()
     } finally {
-      parent.removeEventListener("message", onMessage)
-      parent.removeEventListener("messageerror", onError)
+      removeEventListener("message", onMessage)
+      removeEventListener("messageerror", onError)
       signal.removeEventListener("abort", onAbort)
     }
   }

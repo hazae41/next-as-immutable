@@ -9,9 +9,11 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
   if (parent !== window) {
     const timeout = AbortSignal.timeout(100)
 
-    const result = await Result.runAndWrap(() => Parent.requestOrThrow<[string]>({
+    const result = await Result.runAndWrap(() => Parent.requestOrThrow<string>({
       method: "csp_get"
     }, timeout))
+
+    console.warn(result.getAny())
 
     /**
      * HTTPSec feature detected
@@ -23,13 +25,13 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
        * Update policy to allow other scripts and workers to run
        */
 
-      const [policy] = result.getOrThrow()
+      const policy = result.getOrThrow()
 
       const selfsrc = policy.match(/'([^']*)'/)?.[1]
       const expected = `script-src '${selfsrc}' INJECT_SOURCES; worker-src 'self';`
 
       if (policy !== expected) {
-        const timeout = AbortSignal.timeout(100)
+        const timeout = AbortSignal.timeout(1000)
 
         await Parent.requestOrThrow<void>({
           method: "csp_set",
