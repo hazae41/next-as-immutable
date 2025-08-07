@@ -29,7 +29,9 @@ for (const pathname of walkSync(`./out`)) {
 
   for (const script of scripts) {
     if (script.src) {
-      const text = fs.readFileSync(path.join("./out", script.src), "utf8")
+      const url = new URL(script.src, `file://${pathname}`)
+
+      const text = fs.readFileSync(path.join("./out", url.pathname), "utf8")
       const hash = crypto.createHash("sha256").update(text).digest("base64")
 
       script.setAttribute("integrity", `sha256-${hash}`)
