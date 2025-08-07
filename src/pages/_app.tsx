@@ -27,8 +27,5 @@ export default function App({ Component, pageProps }: AppProps) {
   if (!ready)
     return null
 
-  return <>
-    <div className="static" />
-    <Component {...pageProps} />
-  </>
+  return <Component {...pageProps} />
 }
