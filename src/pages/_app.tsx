@@ -1,14 +1,15 @@
 import "@/styles/globals.css";
+
 import { Immutable } from "@hazae41/immutable";
 import type { AppProps } from "next/app";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 async function register() {
   navigator.serviceWorker.addEventListener("controllerchange", () => location.reload())
 
   const { update } = await Immutable.register("/service_worker.latest.js")
 
-  if (update != null && confirm("Update available, do you want to update now?")) {
+  if (update != null && confirm("An update is available. Do you want to update now?")) {
     await update()
     return
   }
@@ -17,15 +18,17 @@ async function register() {
 }
 
 export default function App({ Component, pageProps }: AppProps) {
-  const executed = useRef(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    if (executed.current)
-      return
-    executed.current = true
-
-    register()
+    register().then(() => setReady(true)).catch(console.error)
   }, [])
 
-  return <Component {...pageProps} />;
+  if (!ready)
+    return null
+
+  return <>
+    <div className="static" />
+    <Component {...pageProps} />;
+  </>
 }
