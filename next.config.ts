@@ -206,14 +206,21 @@ const nextConfig: NextConfig = withNextSidebuild({
         source: "/:path*",
         headers: [
           /**
-           * Recommended in order to be embedded with strong restrictions
+           * Recommended in order to be fetchable from other origins
+           */
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          /**
+           * Recommended in order to be embeddable in other origins
            */
           {
             key: "Allow-CSP-From",
             value: "*"
           },
           /**
-           * Mandatory in order to get almost immutable caching
+           * Recommended to get almost immutable caching
            */
           {
             key: "Cache-Control",
