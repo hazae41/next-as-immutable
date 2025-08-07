@@ -12,11 +12,11 @@ async function register() {
 
   await getOrWaitActiveServiceWorkerOrThrow(registration)
 
-  registration.addEventListener("updatefound", () => alert(`An update is being installed on this website (${location.origin}). If you did not expect this, please contact admins and stop using this website (${location.origin}), as it may be an ongoing attack.`), {})
+  registration.addEventListener("updatefound", () => alert(`An update of ${location.origin} is being installed. If you did not expect this, please contact admins and stop using this website (${location.origin}), as it may be under attack.`), {})
 
   if (update == null)
     return
-  if (!confirm("An update is available. Do you want to update now?"))
+  if (!confirm(`An update of ${location.origin} is available. Do you want to update now?`))
     return
 
   await update()
