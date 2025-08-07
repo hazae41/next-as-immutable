@@ -1,5 +1,6 @@
 import { NextSidebuild, withNextSidebuild } from "@hazae41/next-sidebuild";
 import type { NextConfig } from "next";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { Configuration } from "webpack";
@@ -189,7 +190,7 @@ const nextConfig: NextConfig = withNextSidebuild({
    * Recommended in order to get deterministic build ID
    */
   generateBuildId() {
-    return "immutable"
+    return execSync("git rev-parse HEAD").toString().trim()
   },
 
   sidebuilds: function* (wpconfig: any) {
