@@ -35,5 +35,12 @@ if (process.env.NODE_ENV === "production") {
   /**
    * Respond with cache
    */
-  self.addEventListener("fetch", (event) => cache.handle(event))
+  self.addEventListener("fetch", (event) => {
+    const response = cache.handle(event.request)
+
+    if (response == null)
+      return
+
+    event.respondWith(response)
+  })
 }
