@@ -15,6 +15,8 @@ globalThis.XMLSerializer = window.XMLSerializer
 
 const loader = fs.readFileSync("./.webpack/loader.js", "utf8")
 
+const manifest = fs.readFileSync("./out/manifest.json", "base64")
+
 for (const pathname of walkSync(`./out`)) {
   const filename = path.basename(pathname)
 
@@ -47,8 +49,13 @@ for (const pathname of walkSync(`./out`)) {
     }
   }
 
-  const begin = new XMLSerializer().serializeToString(document)
-    .replaceAll("<head>", `<head><script type="module">${loader.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
+  const reloader = loader
+    .replaceAll("INJECT_MANIFEST", `data:application/json;base64,${manifest}`)
+    .replaceAll("INJECT_SOURCES", sources.join(" "))
+
+  const fresh = new XMLSerializer().serializeToString(document)
+
+  const begin = fresh.replaceAll("<head>", `<head><script type="module">${reloader}</script>`)
 
   const inter = begin
     .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
