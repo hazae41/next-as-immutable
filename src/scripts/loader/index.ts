@@ -10,7 +10,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
     const httpsec = await Result.runAndWrap(() => Parent.requestOrThrow<boolean>({
       method: "httpsec_ping"
-    }, AbortSignal.timeout(100)))
+    }, AbortSignal.timeout(1)))
 
     if (httpsec.isOk()) {
 
@@ -41,7 +41,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       await Parent.requestOrThrow<boolean>({
         method: "manifest_set",
         params: ["INJECT_MANIFEST"]
-      }, AbortSignal.timeout(100))
+      }, undefined)
 
       /**
        * Update policy to allow other scripts and workers to run
@@ -49,7 +49,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       const policy = await Parent.requestOrThrow<string>({
         method: "csp_get"
-      }, AbortSignal.timeout(100))
+      }, undefined)
 
       const mysource = policy.match(/'([^']*)'/)?.[1]
 
@@ -59,7 +59,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
         await Parent.requestOrThrow<void>({
           method: "csp_set",
           params: [expected]
-        }, AbortSignal.timeout(100))
+        }, undefined)
 
         throw new Error()
       }
@@ -72,7 +72,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
         Parent.requestOrThrow<void>({
           method: "href_set",
           params: [location.href]
-        }, AbortSignal.timeout(100)).catch(console.error)
+        }, undefined).catch(console.error)
       })
 
       /**
@@ -81,7 +81,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       await Parent.requestOrThrow<void>({
         method: "frame_show"
-      }, AbortSignal.timeout(100))
+      }, undefined)
     }
   }
 }

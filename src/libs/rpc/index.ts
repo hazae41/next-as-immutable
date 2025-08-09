@@ -3,7 +3,7 @@ import { RpcRequest, RpcRequestPreinit, RpcResponse, RpcResponseInit } from "@ha
 
 export namespace Parent {
 
-  export async function requestOrThrow<T>(init: RpcRequestPreinit, signal: AbortSignal): Promise<T> {
+  export async function requestOrThrow<T>(init: RpcRequestPreinit, signal: AbortSignal = new AbortController().signal): Promise<T> {
     const { id = crypto.randomUUID(), method, params } = init
 
     const future = new Future<RpcResponse<T>>()
