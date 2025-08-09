@@ -13,7 +13,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
   const final = `<!DOCTYPE html>${document.documentElement.outerHTML}`
 
   const inter = final
-    .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
     .replaceAll("/>", ">")
     .replaceAll("\n", "")
     .replaceAll("\r", "")
@@ -23,8 +23,8 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
   const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
   const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
 
-  if (hexa !== "INJECT_HASH")
-    throw new Error(`Invalid hash. Expected ${"INJECT_HASH"} but computed ${hexa}.`)
+  if (hexa !== "INJECT_HTML_HASH")
+    throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
   if (parent !== window) {
     const result = await Result.runAndWrap(() => Parent.requestOrThrow<string>({
@@ -45,7 +45,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       const rescoped = await Parent.requestOrThrow<boolean>({
         method: "manifest_set",
-        params: ["/manifest.json"]
+        params: ["INJECT_MANIFEST"]
       }, AbortSignal.timeout(100))
 
       if (rescoped)

@@ -51,7 +51,7 @@ for (const pathname of walkSync(`./out`)) {
     .replaceAll("<head>", `<head><script type="module">${verifier.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
 
   const inter = begin
-    .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
     .replaceAll("/>", ">")
     .replaceAll("\n", "")
     .replaceAll("\r", "")
@@ -60,7 +60,7 @@ for (const pathname of walkSync(`./out`)) {
 
   const hash = crypto.createHash("sha256").update(inter).digest("hex")
 
-  const final = begin.replaceAll("INJECT_HASH", hash)
+  const final = begin.replaceAll("INJECT_HTML_HASH", hash)
 
   fs.writeFileSync(pathname, final, "utf8")
 }

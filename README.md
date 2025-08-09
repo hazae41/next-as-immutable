@@ -136,7 +136,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     const final = `<!DOCTYPE html>${document.documentElement.outerHTML}`
 
     const inter = final
-      .replaceAll("INJECT_HASH", "DUMMY_HASH")
+      .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
       .replaceAll("/>", ">")
       .replaceAll("\n", "")
       .replaceAll("\r", "")
@@ -146,8 +146,8 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
     const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
 
-    if (hexa !== "INJECT_HASH")
-      throw new Error(`Invalid hash. Expected ${"INJECT_HASH"} but computed ${hexa}.`)
+    if (hexa !== "INJECT_HTML_HASH")
+      throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
     parent.postMessage([{ method: "html_show" }], "*")
   }
@@ -210,7 +210,7 @@ for (const pathname of walkSync(`./out`)) {
     .replaceAll("<head>", `<head><script type="module">${verifier.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
 
   const inter = begin
-    .replaceAll("INJECT_HASH", "DUMMY_HASH")
+    .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
     .replaceAll("/>", ">")
     .replaceAll("\n", "")
     .replaceAll("\r", "")
@@ -219,7 +219,7 @@ for (const pathname of walkSync(`./out`)) {
 
   const hash = crypto.createHash("sha256").update(inter).digest("hex")
 
-  const final = begin.replaceAll("INJECT_HASH", hash)
+  const final = begin.replaceAll("INJECT_HTML_HASH", hash)
 
   fs.writeFileSync(pathname, final, "utf8")
 }
