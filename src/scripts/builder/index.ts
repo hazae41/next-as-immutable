@@ -13,7 +13,7 @@ globalThis.XMLSerializer = window.XMLSerializer
  * Inject magic script into all .html files
  */
 
-const verifier = fs.readFileSync("./.webpack/verifier.js", "utf8")
+const loader = fs.readFileSync("./.webpack/loader.js", "utf8")
 
 for (const pathname of walkSync(`./out`)) {
   const filename = path.basename(pathname)
@@ -48,7 +48,7 @@ for (const pathname of walkSync(`./out`)) {
   }
 
   const begin = new XMLSerializer().serializeToString(document)
-    .replaceAll("<head>", `<head><script type="module">${verifier.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
+    .replaceAll("<head>", `<head><script type="module">${loader.replaceAll("INJECT_SOURCES", sources.join(" "))}</script>`)
 
   const inter = begin
     .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")

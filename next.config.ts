@@ -122,12 +122,12 @@ async function compileBuilder(wpconfig: any) {
   await NextSidebuild.compile(config)
 }
 
-async function compileVerifier(wpconfig: any) {
+async function compileLoader(wpconfig: any) {
   const config = {
     /**
      * Name of your script for display on logs
      */
-    name: "verifier",
+    name: "loader",
 
     /**
      * Use "webworker" for in-worker scripts or "web" for in-page scripts
@@ -137,13 +137,13 @@ async function compileVerifier(wpconfig: any) {
     /**
      * Your script source code path
      */
-    entry: "./src/scripts/verifier/index.ts",
+    entry: "./src/scripts/loader/index.ts",
 
     output: {
       /**
        * Output file relative to `./out`
        */
-      filename: "./verifier.js",
+      filename: "./loader.js",
 
       /**
        * DNTUYKWYD
@@ -196,7 +196,7 @@ const nextConfig: NextConfig = withNextSidebuild({
   sidebuilds: function* (wpconfig: any) {
     yield compileServiceWorker(wpconfig);
     yield compileBuilder(wpconfig);
-    yield compileVerifier(wpconfig);
+    yield compileLoader(wpconfig);
   },
 
   async headers() {
