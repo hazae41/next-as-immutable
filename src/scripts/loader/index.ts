@@ -6,26 +6,6 @@ import { Result } from "@hazae41/result"
  */
 if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
-  /**
-   * Check HTML integrity to ensure visible content is not tampered with
-   */
-
-  const final = `<!DOCTYPE html>${document.documentElement.outerHTML}`
-
-  const inter = final
-    .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
-    .replaceAll("/>", ">")
-    .replaceAll("\n", "")
-    .replaceAll("\r", "")
-    .replaceAll(" ", "")
-    .toLowerCase()
-
-  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
-  const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
-
-  if (hexa !== "INJECT_HTML_HASH")
-    throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
-
   if (parent !== window) {
 
     const httpsec = await Result.runAndWrap(() => Parent.requestOrThrow<boolean>({
@@ -33,6 +13,26 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     }, AbortSignal.timeout(100)))
 
     if (httpsec.isOk()) {
+
+      /**
+       * Check HTML integrity to ensure visible content is not tampered with
+       */
+
+      const final = `<!DOCTYPE html>${document.documentElement.outerHTML}`
+
+      const inter = final
+        .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
+        .replaceAll("/>", ">")
+        .replaceAll("\n", "")
+        .replaceAll("\r", "")
+        .replaceAll(" ", "")
+        .toLowerCase()
+
+      const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inter)))
+      const hexa = hash.reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")
+
+      if (hexa !== "INJECT_HTML_HASH")
+        throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
       /**
        * Define manifest
