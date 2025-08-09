@@ -27,39 +27,33 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
   if (parent !== window) {
-    const result = await Result.runAndWrap(() => Parent.requestOrThrow<string>({
-      method: "csp_get"
+
+    const httpsec = await Result.runAndWrap(() => Parent.requestOrThrow<boolean>({
+      method: "httpsec_ping"
     }, AbortSignal.timeout(100)))
 
-    console.debug("HTTPSec", result.getAny())
-
-    /**
-     * HTTPSec feature detected
-     */
-
-    if (result.isOk()) {
+    if (httpsec.isOk()) {
 
       /**
        * Define manifest
        */
 
-      const rescoped = await Parent.requestOrThrow<boolean>({
+      await Parent.requestOrThrow<boolean>({
         method: "manifest_set",
         params: ["INJECT_MANIFEST"]
       }, AbortSignal.timeout(100))
-
-      if (rescoped)
-        throw new Error()
 
       /**
        * Update policy to allow other scripts and workers to run
        */
 
-      const policy = result.getOrThrow()
+      const policy = await Parent.requestOrThrow<string>({
+        method: "csp_get"
+      }, AbortSignal.timeout(100))
 
-      const self = policy.match(/'([^']*)'/)?.[1]
+      const mysource = policy.match(/'([^']*)'/)?.[1]
 
-      const expected = `script-src '${self}' INJECT_SOURCES; worker-src 'self';`
+      const expected = `script-src '${mysource}' INJECT_SOURCES; worker-src 'self';`
 
       if (policy !== expected) {
         await Parent.requestOrThrow<void>({
@@ -80,6 +74,10 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
           params: [location.href]
         }, AbortSignal.timeout(100)).catch(console.error)
       })
+
+      /**
+       * Ready to show the HTML page
+       */
 
       await Parent.requestOrThrow<void>({
         method: "frame_show"
