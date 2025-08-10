@@ -10,7 +10,7 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
     const httpsec = await Result.runAndWrap(() => Parent.requestOrThrow<boolean>({
       method: "httpsec_ping"
-    }, AbortSignal.timeout(1)))
+    }, AbortSignal.timeout(100)))
 
     if (httpsec.isOk()) {
 
