@@ -35,14 +35,6 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
         throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
       /**
-       * Show the HTML page
-       */
-
-      Parent.requestOrThrow<void>({
-        method: "frame_show"
-      }, undefined).catch(console.error)
-
-      /**
        * Update policy to allow other scripts and workers to run
        */
 
@@ -57,6 +49,14 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
           method: "csp_set",
           params: [policy2]
         }, undefined).catch(console.error)
+
+      /**
+       * Show the HTML page
+       */
+
+      Parent.requestOrThrow<void>({
+        method: "frame_show"
+      }, undefined).catch(console.error)
 
       /**
        * Set the hash change listener to update the current href

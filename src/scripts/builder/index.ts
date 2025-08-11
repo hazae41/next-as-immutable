@@ -49,15 +49,16 @@ for (const pathname of walkSync(`./out`)) {
     }
   }
 
-  const reloader = loader
+  const script = loader
     .replaceAll("INJECT_MANIFEST", `data:application/json;base64,${manifest}`)
     .replaceAll("INJECT_SOURCES", sources.join(" "))
 
-  const fresh = new XMLSerializer().serializeToString(document)
+  const original = new XMLSerializer().serializeToString(document)
 
-  const begin = fresh.replaceAll("<head>", `<head><script type="module">${reloader}</script>`)
+  const injected = original
+    .replaceAll("<head>", `<head><script type="module">${script}</script>`)
 
-  const inter = begin
+  const dummy = injected
     .replaceAll("INJECT_HTML_HASH", "DUMMY_HASH")
     .replaceAll("/>", ">")
     .replaceAll("\n", "")
@@ -65,11 +66,18 @@ for (const pathname of walkSync(`./out`)) {
     .replaceAll(" ", "")
     .toLowerCase()
 
-  const hash = crypto.createHash("sha256").update(inter).digest("hex")
+  const htmlh = crypto.createHash("sha256").update(dummy).digest("hex")
 
-  const final = begin.replaceAll("INJECT_HTML_HASH", hash)
+  const html2 = injected.replaceAll("INJECT_HTML_HASH", htmlh)
+  const script2 = script.replaceAll("INJECT_HTML_HASH", htmlh)
 
-  fs.writeFileSync(pathname, final, "utf8")
+  const relative = path.relative(`./out`, pathname)
+
+  const scripth = crypto.createHash("sha256").update(script2).digest("base64")
+
+  fs.writeFileSync(pathname, html2, "utf8")
+
+  console.log(relative, scripth)
 }
 
 /**
