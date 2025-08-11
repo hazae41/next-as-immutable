@@ -15,6 +15,22 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
     if (protocol.getOrNull() === "httpsec") {
 
       /**
+       * Update policy to allow other scripts and workers to run
+       */
+
+      const policy = await Parent.requestOrThrow<string>({
+        method: "csp_get"
+      }, undefined)
+
+      const expected = `script-src '${policy.match(/'([^']*)'/)?.[1]}' INJECT_SOURCES; worker-src 'self';`
+
+      if (policy !== expected)
+        Parent.requestOrThrow<void>({
+          method: "csp_set",
+          params: [expected]
+        }, undefined).catch(console.error)
+
+      /**
        * Check HTML integrity to ensure visible content is not tampered with
        */
 
@@ -41,24 +57,6 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       Parent.requestOrThrow<void>({
         method: "frame_show"
       }, undefined).catch(console.error)
-
-      /**
-       * Update policy to allow other scripts and workers to run
-       */
-
-      const policy = await Parent.requestOrThrow<string>({
-        method: "csp_get"
-      }, undefined)
-
-      const mysource = policy.match(/'([^']*)'/)?.[1]
-
-      const expected = `script-src '${mysource}' INJECT_SOURCES; worker-src 'self';`
-
-      if (policy !== expected)
-        Parent.requestOrThrow<void>({
-          method: "csp_set",
-          params: [expected]
-        }, undefined).catch(console.error)
 
       /**
        * Set the hash change listener to update the current href
