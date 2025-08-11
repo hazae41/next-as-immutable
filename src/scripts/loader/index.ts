@@ -35,12 +35,11 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
         throw new Error(`Invalid hash. Expected ${"INJECT_HTML_HASH"} but computed ${hexa}.`)
 
       /**
-       * Define manifest
+       * Show the HTML page
        */
 
-      await Parent.requestOrThrow<boolean>({
-        method: "manifest_set",
-        params: ["INJECT_MANIFEST"]
+      await Parent.requestOrThrow<void>({
+        method: "frame_show"
       }, undefined)
 
       /**
@@ -55,17 +54,14 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
       const expected = `script-src '${mysource}' INJECT_SOURCES; worker-src 'self';`
 
-      if (policy !== expected) {
+      if (policy !== expected)
         await Parent.requestOrThrow<void>({
           method: "csp_set",
           params: [expected]
         }, undefined)
 
-        throw new Error()
-      }
-
       /**
-       * Set the hash change listener to update the parent with the current hash
+       * Set the hash change listener to update the parent with the current href
        */
 
       addEventListener("hashchange", () => {
@@ -76,12 +72,13 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       })
 
       /**
-       * Ready to show the HTML page
+       * Define webapp manifest
        */
 
-      await Parent.requestOrThrow<void>({
-        method: "frame_show"
-      }, undefined)
+      Parent.requestOrThrow<boolean>({
+        method: "manifest_set",
+        params: ["INJECT_MANIFEST"]
+      }, undefined).catch(console.error)
     }
   }
 }
