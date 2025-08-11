@@ -50,12 +50,12 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
         method: "csp_get"
       }, undefined)
 
-      const expected = `script-src '${policy.match(/'([^']*)'/)?.[1]}' INJECT_SOURCES; worker-src 'self';`
+      const policy2 = `script-src '${policy.match(/'([^']*)'/)?.[1]}' INJECT_SOURCES; worker-src 'self';`
 
-      if (policy !== expected)
+      if (policy !== policy2)
         Parent.requestOrThrow<void>({
           method: "csp_set",
-          params: [expected]
+          params: [policy2]
         }, undefined).catch(console.error)
 
       /**
