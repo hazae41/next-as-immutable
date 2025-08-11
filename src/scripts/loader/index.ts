@@ -8,11 +8,11 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
 
   if (parent !== window) {
 
-    const httpsec = await Result.runAndWrap(() => Parent.requestOrThrow<boolean>({
-      method: "httpsec_ping"
+    const protocol = await Result.runAndWrap(() => Parent.requestOrThrow<string>({
+      method: "knock_knock"
     }, AbortSignal.timeout(100)))
 
-    if (httpsec.isOk()) {
+    if (protocol.getOrNull() === "httpsec") {
 
       /**
        * Check HTML integrity to ensure visible content is not tampered with
@@ -38,9 +38,9 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
        * Show the HTML page
        */
 
-      await Parent.requestOrThrow<void>({
+      Parent.requestOrThrow<void>({
         method: "frame_show"
-      }, undefined)
+      }, undefined).catch(console.error)
 
       /**
        * Update policy to allow other scripts and workers to run
@@ -55,13 +55,13 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
       const expected = `script-src '${mysource}' INJECT_SOURCES; worker-src 'self';`
 
       if (policy !== expected)
-        await Parent.requestOrThrow<void>({
+        Parent.requestOrThrow<void>({
           method: "csp_set",
           params: [expected]
-        }, undefined)
+        }, undefined).catch(console.error)
 
       /**
-       * Set the hash change listener to update the parent with the current href
+       * Set the hash change listener to update the current href
        */
 
       addEventListener("hashchange", () => {
@@ -70,6 +70,15 @@ if (navigator.userAgent.match(/(bot|spider)/) == null) {
           params: [location.href]
         }, undefined).catch(console.error)
       })
+
+      /**
+       * Update the current href
+       */
+
+      Parent.requestOrThrow<void>({
+        method: "href_set",
+        params: [location.href]
+      }, undefined).catch(console.error)
 
       /**
        * Define webapp manifest
